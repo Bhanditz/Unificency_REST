@@ -1,0 +1,4 @@
+/instance/config.py
+/migrations/*
+*.pyc
+.idea/
