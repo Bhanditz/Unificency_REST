@@ -25,7 +25,7 @@ class SingleRoom(Resource):
         parser = self.post_parser()
         args = parser.parse_args()
         # if required args are not present flask returns a 400 here
-        parent_building = building_model.Building.query.filter_by(address=args['address']).one()
+        parent_building = building_model.Building.query.filter_by(address=args['address']).first()
         # only carry on if a building for that room exists
         if not parent_building:
             return make_response('there is no building at this address in our system', 404)

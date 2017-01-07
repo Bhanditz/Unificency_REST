@@ -12,6 +12,8 @@ def load_models():
     from app.user import model as user_model
     from app.building import model as building_model
     from app.room import model as room_model
+    from app.note import  model as note_model
+    from app.university import model as university_model
 
 
 def register_blueprints(app):
