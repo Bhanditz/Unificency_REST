@@ -1,7 +1,7 @@
 from flask import Blueprint, make_response
-from flask_restful import Api, Resource, marshal_with, reqparse
+from flask_restful import Api, Resource, reqparse
 from sqlalchemy.exc import IntegrityError
-from flask_restful import fields, marshal
+from flask_restful import marshal
 from flask import jsonify
 from app import db
 import model

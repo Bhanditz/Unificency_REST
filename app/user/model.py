@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
         self.username, self.email = username, email
     # user belongs to a university via !owner!
     id = db.Column(db.Integer, primary_key=True)
+    university_id = db.Column('university_id', db.Integer, db.ForeignKey('universities.id'), nullable=False)
     email = db.Column(db.String(60), index=True, unique=True)
     username = db.Column(db.String(20), index=True, unique=True)
     password_hash = db.Column(db.String(128))
