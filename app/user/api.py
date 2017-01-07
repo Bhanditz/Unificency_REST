@@ -13,10 +13,10 @@ api = Api(user_blueprint)
 class SingleUser(Resource):
     def post_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True, help='you have to provide an address for this room')
-        parser.add_argument('email', type=email, required=True, help='you have to provide name for this room')
+        parser.add_argument('username', type=str, required=True, help='you have to provide a username for this user')
+        parser.add_argument('email', type=email, required=True, help='you have to provide a valid email for this user')
+        parser.add_argument('university', type=str, required=True, help='you have to provide a university for this user')
         parser.add_argument('password', type=str, default=None)
-        parser.add_argument('university', type=str, required=True)
         return parser
 
     def post(self):
@@ -24,11 +24,12 @@ class SingleUser(Resource):
         args = parser.parse_args()
         parent_uni = university_model.University.query.filter_by(name=args['university']).first()
         if parent_uni:
-            new_user = model.User(username=args['username'], emaiL=args['email'])
+            new_user = model.User(username=args['username'], email=args['email'])
             new_user.owner = parent_uni
             try:
                 db.session.add(new_user)
                 db.session.commit()
+                return make_response('user was created', 201)
             except IntegrityError as error:
                 s = ""
                 if "Duplicate entry" in error.message:
