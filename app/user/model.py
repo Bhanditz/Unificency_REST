@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_restful import fields
 
 from app import db, login_manager
 
@@ -11,11 +12,19 @@ class User(UserMixin, db.Model):
 
     __tablename__ = 'users'
 
+    def __init__(self, username, email):
+        self.username, self.email = username, email
+    # user belongs to a university via !owner!
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(60), index=True, unique=True)
-    username = db.Column(db.String(60), index=True, unique=True)
+    username = db.Column(db.String(20), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     notes = db.relationship('Note', backref='owner', lazy='dynamic')
+
+    fields = {
+        'email': fields.String(60),
+        'username': fields.String(20)
+    }
 
     @property
     def password(self):
