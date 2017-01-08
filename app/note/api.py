@@ -9,7 +9,7 @@ from app.user import model as user_model
 from app.validation import email
 
 
-note_blueprint = Blueprint('room', __name__)
+note_blueprint = Blueprint('note', __name__)
 api = Api(note_blueprint)
 
 
