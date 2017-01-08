@@ -21,7 +21,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(20), index=True, unique=True)
     major = db.Column(db.String(40))
     password_hash = db.Column(db.String(128))
-    notes = db.relationship('Note', backref='owner', lazy='dynamic')
+    # if the user is deleted, so are the notes
+    notes = db.relationship('Note', backref='owner', lazy='dynamic', cascade="all, delete-orphan")
 
     fields = {
         'email': fields.String(60),

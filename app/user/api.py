@@ -29,6 +29,12 @@ class SingleUser(Resource):
         parser.add_argument('major', type=str)
         return parser
 
+    def delete_parser(self):
+        parser = reqparse.RequestParser()
+        # authorization has to be added
+        parser.add_argument('email', type=validator.email, required=True, help='you have to provide a valid email for this user')
+        return parser
+
 
     def post(self):
         parser = self.post_parser()
@@ -62,8 +68,18 @@ class SingleUser(Resource):
             db.session.commit()
             return make_response(204)
         return make_response("no such user", 404)
-        
-    def delete(self): pass
+
+    def delete(self):
+        parser = self.delete_parser()
+        args = parser.parse_args()
+        # try to delete if exists
+        user_to_delete = model.User.query.filter_by(email=args['email']).first()
+        if user_to_delete:
+            db.session.delete(user_to_delete)
+            db.session.commit()
+            return make_response('user deleted', 204)
+        return make_response('no such user', 404)
+
 
 class UserList(Resource):
     @marshal_with(model.User.fields)
