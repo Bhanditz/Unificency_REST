@@ -66,7 +66,7 @@ class SingleUser(Resource):
             for k, v in args:
                 user_to_update[k] = v if v else user_to_update[k]
             db.session.commit()
-            return make_response(204)
+            return make_response(200)
         return make_response("no such user", 404)
 
     def delete(self):
@@ -77,7 +77,7 @@ class SingleUser(Resource):
         if user_to_delete:
             db.session.delete(user_to_delete)
             db.session.commit()
-            return make_response('user deleted', 204)
+            return make_response('user deleted', 200)
         return make_response('no such user', 404)
 
 

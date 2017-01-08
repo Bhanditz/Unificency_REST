@@ -28,17 +28,36 @@ class NoteCreation(Resource):
         parser.add_argument('content', type=str, required=True, help='you have to provide some content for this room')
         return parser
 
-    """def post(self):
+    def delete_parser(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('note_id', type=int, required=True, help='you have to provide an id for this note')
+        return parser
+
+    def post(self):
         parser = self.post_parser()
         args = parser.parse_args()
         um = user_model.User
-        parent_user = um.query.filter_by(email=args['user_email']).one()
+        parent_user = um.query.filter_by(email=args['user_email']).first()
         if not parent_user:
-            make_response('no such user found', 404)
-        parent_user.notes.appen(model.Note(
+            make_response('no such user', 404)
+        new_note = model.Note(
             args['name'], args['topic'], args['content']
-        ))"""
+        )
+        new_note.owner = parent_user
+        db.session.add(new_note)
+        db.session.commit()
+        make_response('note created', 201)
 
+    def delete(self):
+        # auth!
+        parser = self.post_parser()
+        args = parser.parse_args()
+        note_to_delete = model.Note.query.get(id)
+        if note_to_delete:
+            db.session.delete(note_to_delete)
+            db.session.commit()
+            return make_response('user deleted', 200)
+        return make_response('no such note', 404)
 
 api.add_resource(NoteCreation, '/notes/')
 api.add_resource(AllUniNotes, '/notes/<string:university>')

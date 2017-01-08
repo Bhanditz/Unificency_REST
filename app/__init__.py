@@ -27,9 +27,11 @@ def register_blueprints(app):
     from app.user.api import user_blueprint
     from app.room.api import room_blueprint
     from app.building.api import building_blueprint
+    from app.note.api import note_blueprint
     app.register_blueprint(user_blueprint, url_prefix='/api')
     app.register_blueprint(room_blueprint, url_prefix='/api')
     app.register_blueprint(building_blueprint, url_prefix='/api')
+    app.register_blueprint(note_blueprint, url_prefix='/api')
 
 
 def create_app(config_name='development'):
