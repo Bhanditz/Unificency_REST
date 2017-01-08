@@ -1,5 +1,6 @@
 from app import db
 from flask_restful import fields
+from app.user import model as user_model
 
 # many to many
 GroupMembership = db.Table('groupmembership',
@@ -24,8 +25,8 @@ class Group(db.Model):
     fields = {
         'name': fields.String,
         'topic_area': fields.String,
-        'description': fields.String
-        #'members':
+        'description': fields.String,
+        'members': fields.Nested(user_model.User.fields['small'])
     }
 
 
