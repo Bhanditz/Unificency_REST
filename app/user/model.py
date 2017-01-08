@@ -12,19 +12,21 @@ class User(UserMixin, db.Model):
 
     __tablename__ = 'users'
 
-    def __init__(self, username, email):
-        self.username, self.email = username, email
+    def __init__(self, username, email, major):
+        self.username, self.email, self.major = username, email, major
     # user belongs to a university via !owner!
     id = db.Column(db.Integer, primary_key=True)
     university_id = db.Column('university_id', db.Integer, db.ForeignKey('universities.id'), nullable=False)
     email = db.Column(db.String(60), index=True, unique=True)
     username = db.Column(db.String(20), index=True, unique=True)
+    major = db.Column(db.String(40))
     password_hash = db.Column(db.String(128))
     notes = db.relationship('Note', backref='owner', lazy='dynamic')
 
     fields = {
         'email': fields.String(60),
-        'username': fields.String(20)
+        'username': fields.String(20),
+        'major': fields.String(20)
     }
 
     @property
