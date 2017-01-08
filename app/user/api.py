@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response
-from flask_restful import Api, Resource, reqparse, marshal_with, marshal
+from flask_restful import Api, Resource, reqparse, marshal_with
 from app import db
 from app.university import model as university_model
 import model
@@ -58,15 +58,19 @@ class SingleUser(Resource):
         return make_response('no such university', 404)
 
     def put(self):
+        test = ""
         parser = self.put_parser()
         args = parser.parse_args()
         # get user, if no email is provided, a 404 is returned right here
         user_to_update = model.User.query.filter_by(email=args['email']).first()
         if user_to_update:
-            for k, v in args:
-                user_to_update[k] = v if v else user_to_update[k]
+            for key, value in args.iteritems():
+                # last part is to fix requests that have a key but null as a value for that key
+                #setattr(user_to_update(user_to_update, k, v if v else getattr(user_to_update,k)))
+                if value:
+                    setattr(user_to_update, key, value)
             db.session.commit()
-            return make_response(200)
+            return make_response('updated major' + test, 200)
         return make_response("no such user", 404)
 
     def delete(self):
@@ -88,7 +92,6 @@ class UserList(Resource):
         if parent_uni:
             return parent_uni.users.all()
         return make_response('no such university', 404)
-
 
 
 api.add_resource(SingleUser, '/users/')
