@@ -23,7 +23,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     # if the user is deleted, so are the notes
     notes = db.relationship('Note', backref='owner', lazy='dynamic', cascade="all, delete-orphan")
-
+    # groups can be accessed via many-to-many relationship
     fields = {
         'email': fields.String(60),
         'username': fields.String(20),
