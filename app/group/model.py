@@ -24,12 +24,14 @@ class Group(db.Model):
 
     fields = {
         'with_members': {
+            'id': fields.Integer,
             'name': fields.String,
             'topic_area': fields.String,
             'description': fields.String,
             'members': fields.Nested(user_model.User.fields['only_username'])
         },
         'basic': {
+            'id': fields.Integer,
             'name': fields.String,
             'topic_area': fields.String,
             'description': fields.String
