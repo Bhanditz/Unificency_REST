@@ -25,12 +25,12 @@ class User(UserMixin, db.Model):
     notes = db.relationship('Note', backref='owner', lazy='dynamic', cascade="all, delete-orphan")
     # groups can be accessed via many-to-many relationship
     fields = {
-        'large': {
+        'basic': {
             'email': fields.String(60),
             'username': fields.String(20),
             'major': fields.String(20)
         },
-        'small': {
+        'only_username': {
             'username': fields.String(20)
         }
     }

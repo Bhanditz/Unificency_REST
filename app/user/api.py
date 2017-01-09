@@ -86,7 +86,7 @@ class SingleUser(Resource):
 
 
 class UserList(Resource):
-    @marshal_with(model.User.fields['large'])
+    @marshal_with(model.User.fields['basic'])
     def get(self, university):
         parent_uni = university_model.University.query.filter_by(name=university).first()
         if parent_uni:

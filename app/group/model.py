@@ -20,13 +20,20 @@ class Group(db.Model):
     topic_area = db.Column('topic_area', db.String(20), nullable=False)
     password = db.Column('password', db.String(256))
     description = db.Column('description', db.String(140))
-    members = db.relationship('User', secondary=GroupMembership, backref=db.backref('groups', lazy='dynamic'))
+    members = db.relationship('User', secondary=GroupMembership, backref=db.backref('groups', lazy='joined'))
 
     fields = {
-        'name': fields.String,
-        'topic_area': fields.String,
-        'description': fields.String,
-        'members': fields.Nested(user_model.User.fields['small'])
+        'with_members': {
+            'name': fields.String,
+            'topic_area': fields.String,
+            'description': fields.String,
+            'members': fields.Nested(user_model.User.fields['only_username'])
+        },
+        'basic': {
+            'name': fields.String,
+            'topic_area': fields.String,
+            'description': fields.String
+        }
     }
 
 

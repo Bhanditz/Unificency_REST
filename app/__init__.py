@@ -30,6 +30,8 @@ def register_blueprints(app):
     from app.room.api import room_blueprint
     from app.building.api import building_blueprint
     from app.note.api import note_blueprint
+    from app.group.api import group_blueprint
+    app.register_blueprint(group_blueprint, url_prefix='/api')
     app.register_blueprint(user_blueprint, url_prefix='/api')
     app.register_blueprint(room_blueprint, url_prefix='/api')
     app.register_blueprint(building_blueprint, url_prefix='/api')
