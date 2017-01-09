@@ -33,6 +33,7 @@ class JoinGroup(Resource):
                                                                              group=group_to_join.name), 200)
         return make_response('no such user or group', 404)
 
+
 class GroupsAtUniversity(Resource):
     @marshal_with(model.Group.fields['with_members'])
     def get(self, university):
