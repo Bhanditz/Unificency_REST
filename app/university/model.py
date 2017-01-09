@@ -13,6 +13,7 @@ class University(db.Model):
     city = db.Column('city', db.String(40))
     buildings = db.relationship('Building', backref='owner', lazy='dynamic')
     users = db.relationship('User', backref='owner', lazy='dynamic')
+    groups = db.relationship('Group', backref='owner', lazy='dynamic')
     fields = {
         'name': fields.String,
         'country': fields.String,

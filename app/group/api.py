@@ -13,7 +13,7 @@ group_blueprint = Blueprint('group', __name__)
 api = Api(group_blueprint)
 
 
-class JoinGroup(Resource):
+class SingleGroup(Resource):
     def post_parser(self):
         parser = reqparse.RequestParser()
         parser.add_argument('user_email', type=validator.email, required=True, help='you have to provide a valid email')
@@ -33,6 +33,11 @@ class JoinGroup(Resource):
                                                                              group=group_to_join.name), 200)
         return make_response('no such user or group', 404)
 
+    @marshal_with(model.Group.fields['basic'])
+    def get(self, id_):
+        group = model.Group.query.get(id_)
+        return group if group else make_response('no such group', 404)
+
 
 class GroupsAtUniversity(Resource):
     @marshal_with(model.Group.fields['with_members'])
@@ -42,15 +47,8 @@ class GroupsAtUniversity(Resource):
         return groups_at_uni if groups_at_uni else make_response('no such group', 404)
 
 
-class SingleGroup(Resource):
-    @marshal_with(model.Group.fields['basic'])
-    def get(self, name):
-        group = model.Group.query.filter_by(name=name).first()
-        return group if group else make_response('no such group', 404)
-    pass
 
 # !!! when returning a user list via group marshaller you have to explicitly load the relationship if dynamic='lazy' !!!
 # !!! like so ... group.users ... another possiblity is to do lazy='joined' on the user object
-api.add_resource(JoinGroup, '/groups/join/<int:id>')
+api.add_resource(SingleGroup, '/groups/join/<int:id>')
 api.add_resource(GroupsAtUniversity, '/groups/<string:university>')
-api.add_resource(SingleGroup, '/groups/name/<string:name>')
