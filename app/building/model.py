@@ -17,6 +17,7 @@ class Building(db.Model):
     __table_args__ = (db.UniqueConstraint('university_id', 'address', 'name', name='_university_address_name_'),)
     # how we would like our json output to look like
     fields = {
+        'id': fields.Integer,
         'address': fields.String,
         'name': fields.String(default=None),
         'description': fields.String(default=None)

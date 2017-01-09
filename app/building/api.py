@@ -53,11 +53,13 @@ class Buildings(Resource):
 class BuildingsFromUniversity(Resource):
 
     def get(self, university):
-        # client may check if empty
         parent_uni = university_model.University.query.filter_by(name=university).first()
-        all_buildings_uni = parent_uni.buildings.all()
-        response = {parent_uni.name: marshal(all_buildings_uni, model.Building.fields)}
-        return jsonify(response)
+        if parent_uni:
+            all_buildings_uni = parent_uni.buildings.all()
+            if all_buildings_uni:
+                response = {parent_uni.name: marshal(all_buildings_uni, model.Building.fields)}
+                return jsonify(response)
+        return make_response('no uni or buildings found', 404)
 
 api.add_resource(Buildings, '/buildings/')
 api.add_resource(BuildingsFromUniversity, '/buildings/<string:university>')

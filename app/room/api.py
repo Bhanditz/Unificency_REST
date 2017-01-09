@@ -47,7 +47,7 @@ class SingleRoom(Resource):
 
 
 class RoomsAtAdress(Resource):
-
+    # change this to id
     def get(self, address):
         bm = building_model.Building
         adjusted_address = address.replace('%20', ' ')

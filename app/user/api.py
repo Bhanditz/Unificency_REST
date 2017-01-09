@@ -1,7 +1,8 @@
 from flask import Blueprint, make_response
-from flask_restful import Api, Resource, reqparse, marshal_with
+from flask_restful import Api, Resource, reqparse, marshal_with, marshal
 from app import db
 from app.university import model as university_model
+from app.group import model as group_model
 import model
 from app.validation import email as validator
 from sqlalchemy.exc import IntegrityError
@@ -24,6 +25,7 @@ class SingleUser(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=str)
         parser.add_argument('email', type=validator.email, required=True, help='you have to provide a valid email for this user')
+        parser.add_argument('id', type=int, required=True,help='you have to provide an id for this user')
         parser.add_argument('university', type=str)
         parser.add_argument('password', type=str)
         parser.add_argument('major', type=str)
@@ -32,11 +34,11 @@ class SingleUser(Resource):
     def delete_parser(self):
         parser = reqparse.RequestParser()
         # authorization has to be added
-        parser.add_argument('email', type=validator.email, required=True, help='you have to provide a valid email for this user')
+        parser.add_argument('id', type=db.Integer, required=True, help='you have to provide an id for this user')
         return parser
 
 
-    def post(self):
+    def post(self): # works
         parser = self.post_parser()
         args = parser.parse_args()
         parent_uni = university_model.University.query.filter_by(name=args['university']).first()
@@ -57,17 +59,17 @@ class SingleUser(Resource):
                     return make_response(s, 500)
         return make_response('no such university', 404)
 
-    def put(self):
+    def put(self): # works
         test = ""
         parser = self.put_parser()
         args = parser.parse_args()
         # get user, if no email is provided, a 404 is returned right here
-        user_to_update = model.User.query.filter_by(email=args['email']).first()
+        user_to_update = model.User.query.get(args['id'])
         if user_to_update:
             for key, value in args.iteritems():
                 # last part is to fix requests that have a key but null as a value for that key
                 #setattr(user_to_update(user_to_update, k, v if v else getattr(user_to_update,k)))
-                if value:
+                if value: # check if uni exists
                     setattr(user_to_update, key, value)
             db.session.commit()
             return make_response('updated major' + test, 200)
@@ -77,7 +79,7 @@ class SingleUser(Resource):
         parser = self.delete_parser()
         args = parser.parse_args()
         # try to delete if exists
-        user_to_delete = model.User.query.filter_by(email=args['email']).first()
+        user_to_delete = model.User.query.get(id)
         if user_to_delete:
             db.session.delete(user_to_delete)
             db.session.commit()
@@ -86,13 +88,13 @@ class SingleUser(Resource):
 
 
 class UserList(Resource):
-    @marshal_with(model.User.fields['basic'])
-    def get(self, university):
-        parent_uni = university_model.University.query.filter_by(name=university).first()
-        if parent_uni:
-            return parent_uni.users.all()
+    def get(self, group_id):
+        group = group_model.Group.query.get(group_id)
+        if group:
+            # check if this functions with or without all
+            return marshal(group.members.all(), model.User.fields['basic'])
         return make_response('no such university', 404)
 
 
 api.add_resource(SingleUser, '/users/')
-api.add_resource(UserList, '/users/<string:university>')
+api.add_resource(UserList, '/users/<int:group_id>')

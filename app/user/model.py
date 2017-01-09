@@ -22,7 +22,7 @@ class User(UserMixin, db.Model):
     major = db.Column(db.String(40))
     password_hash = db.Column(db.String(128))
     # if the user is deleted, so are the notes
-    notes = db.relationship('Note', backref='owner', lazy='dynamic', cascade="all, delete-orphan")
+    notes = db.relationship('Note', backref='creator', lazy='dynamic', cascade="all, delete-orphan")
     # groups can be accessed via many-to-many relationship
     fields = {
         'basic': {
