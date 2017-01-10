@@ -93,13 +93,13 @@ class SingleGroup(Resource):
     # add route to delete one user from group
 
 
-class GroupsAtUniversity(Resource):
+class GroupsAtUniversity(Resource): # works
     def get(self, university):
         groups_at_uni = university_model.University.query.filter_by(name=university).first()
         # members has 'joined' property so no need to load them separately into memory
         return marshal(groups_at_uni.groups.all(), model.Group.fields['with_members']) if groups_at_uni else make_response('no such group', 404)
 
-class GroupWithId(Resource):
+class GroupWithId(Resource): # works
     def get(self, id):
         group = model.Group.query.get(id)
         return marshal(group, model.Group.fields['with_members']) if group else make_response('no such group', 404)

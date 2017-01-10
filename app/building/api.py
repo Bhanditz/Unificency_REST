@@ -52,7 +52,7 @@ class Buildings(Resource):
 
 class BuildingsFromUniversity(Resource):
 
-    def get(self, university):
+    def get(self, university): # works
         parent_uni = university_model.University.query.filter_by(name=university).first()
         if parent_uni:
             all_buildings_uni = parent_uni.buildings.all()
