@@ -24,8 +24,8 @@ class SingleUser(Resource):
     def put_parser(self):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=str)
-        parser.add_argument('email', type=validator.email, required=True, help='you have to provide a valid email for this user')
-        parser.add_argument('id', type=int, required=True,help='you have to provide an id for this user')
+        parser.add_argument('email', type=validator.email)
+        parser.add_argument('id', type=int, required=True, help='you have to provide an id for this user')
         parser.add_argument('university', type=str)
         parser.add_argument('password', type=str)
         parser.add_argument('major', type=str)
@@ -39,6 +39,23 @@ class SingleUser(Resource):
 
 
     def post(self): # works
+        """
+        @apiVersion 0.1.0
+        @api {post} /users/ Create a new user
+        @apiName CreateUser
+        @apiGroup Users
+        @apiDescription Create a new user. Note that you have to provide a unique email and a uniwue username.s
+        @apiParam {String} username Unique nickname/username for the new user.
+        @apiParam {String} email The users unique email.
+        @apiParam {String} university The university the user is enrolled in. The university must be present in the db.
+        @apiParam {String} [password] The users password.
+        @apiParam {String} major The subject the new user is majoring in.
+        @apiUse UserAlreadyExistsError
+        @apiUSe NoSuchResourceError
+        @apiUse BadRequest
+        @apiUse SuccessfullyCreated
+        @apiUse CouldNotBeSavedError
+        """
         parser = self.post_parser()
         args = parser.parse_args()
         parent_uni = university_model.University.query.filter_by(name=args['university']).first()
@@ -48,7 +65,7 @@ class SingleUser(Resource):
             try:
                 db.session.add(new_user)
                 db.session.commit()
-                return make_response('user was created', 201)
+                return make_response('created user', 201)
             except IntegrityError as error:
                 s = ""
                 if "Duplicate entry" in error.message:
@@ -60,7 +77,22 @@ class SingleUser(Resource):
         return make_response('no such university', 404)
 
     def put(self): # works
-        test = ""
+        """
+        @apiVersion 0.1.0
+        @api {post} /users/ Modify a user
+        @apiName ModifyUser
+        @apiGroup Users
+        @apiDescription Modify a users information. You may receive an error when trying to set new informations that another user already has, like email.
+        @apiParam {Number} id The users unique id.
+        @apiParam {String} [email] The users unique email.
+        @apiParam {String} [university] The university the user is enrolled in. The university must be present in the db.
+        @apiParam {String} [password] The users password.
+        @apiParam {String} [major] The subject the new user is majoring in.
+        @apiUse BadRequest
+        @apiUse NoSuchUserError
+        @apiUse SuccessfullyCreated
+        """
+
         parser = self.put_parser()
         args = parser.parse_args()
         # get user, if no email is provided, a 404 is returned right here
@@ -70,12 +102,24 @@ class SingleUser(Resource):
                 # last part is to fix requests that have a key but null as a value for that key
                 #setattr(user_to_update(user_to_update, k, v if v else getattr(user_to_update,k)))
                 if value: # check if uni exists
+                    # check for uniqueness violations
                     setattr(user_to_update, key, value)
             db.session.commit()
-            return make_response('updated major' + test, 200)
+            return make_response('updated major', 201)
         return make_response("no such user", 404)
 
     def delete(self):
+        """
+        @apiVersion 0.1.0
+        @api {delete} /users/ Delete a user
+        @apiName DeleteUser
+        @apiGroup Users
+        @apiDescription Delete a users. Implementation is NOT done. There may be errors because auf unimplemented cascading behavior.
+        @apiParam {Number} id The users unique id.
+        @apiUse BadRequest
+        @apiUse NoSuchUserError
+        @apiUse SuccessfullyDeleted
+        """
         parser = self.delete_parser()
         args = parser.parse_args()
         # try to delete if exists
@@ -86,15 +130,17 @@ class SingleUser(Resource):
             return make_response('user deleted', 200)
         return make_response('no such user', 404)
 
-
+"""
 class UserList(Resource):
+
     def get(self, group_id):
         group = group_model.Group.query.get(group_id)
         if group:
             # check if this functions with or without all
             return marshal(group.members.all(), model.User.fields['basic'])
         return make_response('no such university', 404)
+    """
 
 
 api.add_resource(SingleUser, '/users/')
-api.add_resource(UserList, '/users/<int:group_id>')
+#api.add_resource(UserList, '/users/<int:group_id>')

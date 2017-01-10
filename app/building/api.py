@@ -21,6 +21,17 @@ class Buildings(Resource):
         return parser
 
     def post(self):
+        """
+        @apiVersion 0.1.0
+        @api {get} /buildings/{university} All buildings from a university.
+        @apiName CreateABuilding
+        @apiGroup Buildings
+        @apiDescription Create a new Building.
+        @apiUse BadRequest
+        @apiSuccess 201 message Success message.
+        @apiUse NoSuchResourceError
+        @apiUse CouldNotBeSavedError
+        """
         # retrieve post data
         # returns 404 if not valid
         parser = self.post_parser()
@@ -51,8 +62,25 @@ class Buildings(Resource):
 
 
 class BuildingsFromUniversity(Resource):
-
-    def get(self, university): # works
+    def get(self, university):
+        """
+        @apiVersion 0.1.0
+        @api {get} /buildings/{university} All buildings from a university.
+        @apiName GetAllBuildingsFromUniversity
+        @apiGroup Buildings
+        @apiDescription Get a list of all buildings at a university. The university has to be in the database.
+        @apiUse BadRequest
+        @apiSuccess 201 message Success message.
+        @apiSuccessExample Success-Response:
+          HTTP/1.1 200 OK
+          {
+            'name of university': [{
+                "id": the buildings id,
+                "address": the buildings address,
+                "name": the buildings name,
+                "description": the buildings description
+            }, ...]
+        """
         parent_uni = university_model.University.query.filter_by(name=university).first()
         if parent_uni:
             all_buildings_uni = parent_uni.buildings.all()

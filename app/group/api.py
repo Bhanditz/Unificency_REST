@@ -34,7 +34,22 @@ class SingleGroup(Resource):
 
     def post(self):
         """
-            create a new group and add the user to the list of members
+        @apiVersion 0.1.0
+        @api {post} /groups/ Create a new user
+        @apiName CreateGroup
+        @apiGroup Groups
+        @apiDescription Create a new group.
+        @apiParam {Number} user_id Unique id for the user who tries to create a new group.
+        @apiParam {String} group_name A unique name for the group. You cant change this afterwards.
+        @apiParam {String} topic_area A topic area which describes the purpose of this group.
+        @apiParam {String} [password] The groups password.
+        @apiParam {String} description A description for group.
+        @apiUse UserAlreadyExistsError
+        @apiUse BadRequest
+        @apiUse SuccessfullyCreated
+        @apiUse ResourceAlreadyExistsError
+        @apiUse CouldNotBeSavedError
+
         """
         parser = self.post_parser()
         args = parser.parse_args()
@@ -52,11 +67,11 @@ class SingleGroup(Resource):
                 db.session.add(new_group)
                 new_group.members.append(user)
                 db.session.commit()
-                return make_response('group was added to the database', 201)
+                return make_response('added group to database', 201)
             except IntegrityError as error:
                 s = ""
                 if "Duplicate entry" in error.message:
-                    s = "a group for this name already exists"
+                    s = "a group for this id already exists"
                     return make_response(s, 404)
                 else:
                     s = "an error occured, the building could not be saved"
@@ -67,7 +82,26 @@ class SingleGroup(Resource):
 
     def put(self): # works
         """
-            add a user to the group, update the groups description or topic area
+        @apiVersion 0.1.0
+        @api {put} /groups/ Modify a user
+        @apiName ModifyGroup
+        @apiGroup Groups
+        @apiDescription Create a new user. Note that you have to provide a unique email and a unique username.
+        @apiParam {Number} [user_id] Unique id for the user who tries to create a new group.
+        @apiParam {String} [group_name] A unique name for the group. You cant change this afterwards.
+        @apiParam {String} [topic_area] A topic area which describes the purpose of this group.
+        @apiParam {String} [password] The groups password.
+        @apiParam {String} [description] A description for group.
+        @apiUse NoSuchUserError
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response Success message.
+        @apiSuccessExample Success-Response:
+          HTTP/1.1 200 OK
+          {
+            "message:""(user {user} added to group {group})+. ({key} set to {value})*"
+            }
+
+
         """
         parser = self.put_parser()
         args = parser.parse_args()
@@ -93,14 +127,55 @@ class SingleGroup(Resource):
     # add route to delete one user from group
 
 
-class GroupsAtUniversity(Resource): # works
+class GroupsAtUniversity(Resource):
+
     def get(self, university):
+        """
+        @apiVersion 0.1.0
+        @api {get} /groups/{university} Get all groups at a university.
+        @apiName GetGroupsAtUniversity
+        @apiGroup Groups
+        @apiUse BadRequest
+        @apiSuccess 200 message Success message for group creation.
+        @apiSuccessExample Success-Response:
+          HTTP/1.1 200 OK
+          {
+            'id': the groups id,
+            'name': the groups name,
+            'topic_area': the groups area of topic,
+            'description': the groups description,
+            'members': [{name: users who are members of the group}]
+            }
+
+        @apiError NoSuchResourceError
+
+        """
         groups_at_uni = university_model.University.query.filter_by(name=university).first()
         # members has 'joined' property so no need to load them separately into memory
         return marshal(groups_at_uni.groups.all(), model.Group.fields['with_members']) if groups_at_uni else make_response('no such group', 404)
 
 class GroupWithId(Resource): # works
     def get(self, id):
+        """
+        @apiVersion 0.1.0
+        @api {get} /groups/{id} Get group at id.
+        @apiName GetGroupAtId
+        @apiGroup Groups
+        @apiUse BadRequest
+        @apiSuccess 200 message Success message for group creation.
+        @apiSuccessExample Success-Response:
+          HTTP/1.1 200 OK
+          {
+            'id': the groups id,
+            'name': the groups name,
+            'topic_area': the groups area of topic,
+            'description': the groups description,
+            'members': [{name: users who are members of the group}]
+            }
+
+        @apiUse NoSuchResourceError
+
+        """
         group = model.Group.query.get(id)
         return marshal(group, model.Group.fields['with_members']) if group else make_response('no such group', 404)
 

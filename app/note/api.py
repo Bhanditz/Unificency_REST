@@ -16,12 +16,43 @@ api = Api(note_blueprint)
 # all notes from a group with id
 class GroupNotes(Resource):
     def get(self, group_id):
+        """
+        @apiVersion 0.1.0
+        @api {get} /notes/{group_id} Get a groups notes.
+        @apiName GetGroupNotes
+        @apiGroup Notes
+        @apiDescription Get a groups notes.
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response:
+        @apiSuccessExample Success-Response
+          HTTP/1.1 200 OK
+          {
+            [
+            {
+            'name': the groups name,
+            'topic': the groups topic,
+            'content': the groups content
+            }, ...]
+            }
+
+        """
         group_with_id = group_model.Group.query.get(group_id)
         if group_with_id:
             return marshal(group_with_id.notes, model.Note.fields)
         return make_response('no notes found', 404)
 
     def delete(self, id):
+        """
+        @apiVersion 0.1.0
+        @api {delete} /notes/{id} Delete a note.
+        @apiName DeleteNote
+        @apiGroup Notes
+        @apiDescription Delete a note.
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response:
+        @apiUse NoSuchResourceError
+        @apiUse SuccessfullyDeleted
+        """
         # auth! !adjust to id
         parser = self.post_parser()
         args = parser.parse_args()
@@ -50,6 +81,21 @@ class NoteCreation(Resource):
         return parser
 
     def post(self):#note.creator und note.group
+        """
+        @apiVersion 0.1.0
+        @api {post} /notes/ Create a note.
+        @apiName CreateNote
+        @apiGroup Notes
+        @apiDescription Create a new Note.
+        @apiUse BadRequest
+        @apiUse SuccessfullyCreated
+        @apiParam {Number} user_id Unique id for the user who tries to create a new note.
+        @apiParam {Number} group_id A unique id for the group in which the note is posted.
+        @apiParam {String} name The notes name.
+        @apiParam {String} content The notes content.
+        @apiUse NoSuchUserError
+        @apiUse CouldNotBeSavedError
+        """
         parser = self.post_parser()
         args = parser.parse_args()
         um = user_model.User
