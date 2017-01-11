@@ -3,6 +3,7 @@ from flask_restful import fields
 
 
 class Note(db.Model):
+    __tablename__ = 'notes'
     def __init__(self, name, topic, content):
         self.name, self.topic, self.content = name, topic, content
 
