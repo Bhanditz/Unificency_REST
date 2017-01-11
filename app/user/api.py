@@ -16,7 +16,7 @@ class SingleUser(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('username', type=str, required=True, help='you have to provide a username for this user')
         parser.add_argument('email', type=validator.email, required=True, help='you have to provide a valid email for this user')
-        parser.add_argument('university', type=str, required=True, help='you have to provide a university for this user')
+        parser.add_argument('university_id', type=int, required=True, help='you have to provide a university id for this user')
         parser.add_argument('password', type=str, default=None)
         parser.add_argument('major', type=str, default=None)
         return parser
@@ -26,7 +26,7 @@ class SingleUser(Resource):
         parser.add_argument('username', type=str)
         parser.add_argument('email', type=validator.email)
         parser.add_argument('id', type=int, required=True, help='you have to provide an id for this user')
-        parser.add_argument('university', type=str)
+        parser.add_argument('university_id', type=int)
         parser.add_argument('password', type=str)
         parser.add_argument('major', type=str)
         return parser
@@ -44,10 +44,10 @@ class SingleUser(Resource):
         @api {post} /users/ Create a new user
         @apiName CreateUser
         @apiGroup Users
-        @apiDescription Create a new user. Note that you have to provide a unique email and a uniwue username.s
+        @apiDescription Create a new user. Note that you have to provide a unique email and a unique username.
         @apiParam {String} username Unique nickname/username for the new user.
         @apiParam {String} email The users unique email.
-        @apiParam {String} university The university the user is enrolled in. The university must be present in the db.
+        @apiParam {Number} university_id The university the user is enrolled in. The university must be present in the db.
         @apiParam {String} [password] The users password.
         @apiParam {String} major The subject the new user is majoring in.
         @apiUse UserAlreadyExistsError
@@ -58,7 +58,7 @@ class SingleUser(Resource):
         """
         parser = self.post_parser()
         args = parser.parse_args()
-        parent_uni = university_model.University.query.filter_by(name=args['university']).first()
+        parent_uni = university_model.University.query.get(args['university_id'])
         if parent_uni:
             new_user = model.User(username=args['username'], email=args['email'], major=args['major'])
             new_user.owner = parent_uni
@@ -85,7 +85,7 @@ class SingleUser(Resource):
         @apiDescription Modify a users information. You may receive an error when trying to set new informations that another user already has, like email.
         @apiParam {Number} id The users unique id.
         @apiParam {String} [email] The users unique email.
-        @apiParam {String} [university] The university the user is enrolled in. The university must be present in the db.
+        @apiParam {Number} [university_id] The university the user is enrolled in. The university must be present in the db.
         @apiParam {String} [password] The users password.
         @apiParam {String} [major] The subject the new user is majoring in.
         @apiUse BadRequest
@@ -104,7 +104,7 @@ class SingleUser(Resource):
                 if value: # check if uni exists
                     # check for uniqueness violations
                     setattr(user_to_update, key, value)
-            db.session.commit()
+            db.session.commit() # catch errors
             return make_response('updated major', 201)
         return make_response("no such user", 404)
 
