@@ -35,7 +35,7 @@ class SingleGroup(Resource):
     def post(self):
         """
         @apiVersion 0.1.0
-        @api {post} /groups/ Create a new user
+        @api {post} /groups/ Create a new group
         @apiName CreateGroup
         @apiGroup Groups
         @apiDescription Create a new group.
@@ -99,8 +99,6 @@ class SingleGroup(Resource):
           {
             "message:""(user {user} added to group {group})+. ({key} set to {value})*"
             }
-
-
         """
         parser = self.put_parser()
         args = parser.parse_args()
