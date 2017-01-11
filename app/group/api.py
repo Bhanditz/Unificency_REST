@@ -82,14 +82,13 @@ class SingleGroup(Resource):
     def put(self): # works
         """
         @apiVersion 0.1.0
-        @api {put} /groups/ Modify a user
+        @api {put} /groups/ Modify a group
         @apiName ModifyGroup
         @apiGroup Groups
-        @apiDescription Create a new user. Note that you have to provide a unique email and a unique username.
-        @apiParam {Number} [user_id] Unique id for the user who tries to create a new group.
-        @apiParam {String} [group_name] A unique name for the group. You cant change this afterwards.
+        @apiDescription Modify a group. Note that you have to provide a unique email and a unique username.
+        @apiParam {Number} user_id Unique id for the user who tries to modify the group. This user must be a member of the group.
+        @apiParam {Number} group_id Unique group id for the group you are tyring to midify.
         @apiParam {String} [topic_area] A topic area which describes the purpose of this group.
-        @apiParam {String} [password] The groups password.
         @apiParam {String} [description] A description for group.
         @apiUse NoSuchUserError
         @apiUse BadRequest
