@@ -28,7 +28,7 @@ class Buildings(Resource):
         @apiGroup Buildings
         @apiDescription Create a new Building.
         @apiUse BadRequest
-        @apiSuccess 201 message Success message.
+        @apiUse SuccessfullyCreated
         @apiUse NoSuchResourceError
         @apiUse CouldNotBeSavedError
         """
@@ -70,8 +70,10 @@ class BuildingsFromUniversity(Resource):
         @apiGroup Buildings
         @apiDescription Get a list of all buildings at a university. The university has to be in the database.
         @apiUse BadRequest
-        @apiSuccess 201 message Success message.
-        @apiSuccessExample Success-Response:
+        @apiSuccess {Number}  id The id
+        @apiSuccess {String}  address The address
+        @apiSuccess {Number}  name The name
+        @apiSuccess {String}  [description] The description
           HTTP/1.1 200 OK
           {
             'name of university': [{

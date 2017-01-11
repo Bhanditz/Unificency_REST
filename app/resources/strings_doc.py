@@ -14,7 +14,7 @@ instead of creating something new. Take a look at the put methods.
 @apiDefine ResourceAlreadyExistsError
 @apiError UserAlreadyExists A Resource for the provided properties (unique keys) already exists in the database. Maybe you should try to modify
 instead of creating something new. Take a look at the put methods.
-@apiErrorExample Error-Response:
+@apiErrorExample ResourceAlreadyExistsError:
     HTTP/1.1 404 Not Found
     {
         "message": "message that specifies the error"
@@ -27,7 +27,7 @@ instead of creating something new. Take a look at the put methods.
 o access a Resource object, possibly
  to update some information on it or some information that are associated with it. Therefor this resource must be present
   in the first place.
-@apiErrorExample Error-Response:
+@apiErrorExample NoSuchResourceError:
     HTTP/1.1 404 Not Found
     {
         "message": "message that specifies the error"
@@ -39,7 +39,7 @@ o access a Resource object, possibly
 @apiError NoSuchUserError There is no such user in the database. You are trying to access a user object, possibly
  to update some information on the user or some information that are associated with the user. Therefor a user object
   must be present in the first place.
-@apiErrorExample Error-Response:
+@apiErrorExample NoSuchUserError:
     HTTP/1.1 404 Not Found
     {
         "message": "this user does not exist"
@@ -50,8 +50,8 @@ o access a Resource object, possibly
 @apiDefine BadRequest
 @apiError BadRequest The provided arguments are not valid. Look at the specification, you might not have provided enough
 fields in your request or you might not have provided a valid value for a field.
-@apiErrorExample Error-Response:
-    HTTP/1.1 400 Not Found
+@apiErrorExample BadRequest:
+    HTTP/1.1 400 Bad Request
     {
         "field_1": "error message for this field",
         "field_2": "error message for this field",

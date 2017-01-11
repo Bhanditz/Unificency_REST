@@ -15,10 +15,10 @@ class University(db.Model):
     users = db.relationship('User', backref='owner', lazy='dynamic')
     groups = db.relationship('Group', backref='owner', lazy='dynamic')
     fields = {
-        'name': fields.String,
-        'country': fields.String,
-        'city': fields.String
+        'basic': {
+            'id': fields.Integer,
+            'name': fields.String,
+            'city': fields.String,
+            'country': fields.String
+        }
     }
-
-
-# hardcode

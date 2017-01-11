@@ -31,11 +31,13 @@ def register_blueprints(app):
     from app.building.api import building_blueprint
     from app.note.api import note_blueprint
     from app.group.api import group_blueprint
+    from app.university.api import university_blueprint
     app.register_blueprint(group_blueprint, url_prefix='/api')
     app.register_blueprint(user_blueprint, url_prefix='/api')
     app.register_blueprint(room_blueprint, url_prefix='/api')
     app.register_blueprint(building_blueprint, url_prefix='/api')
     app.register_blueprint(note_blueprint, url_prefix='/api')
+    app.register_blueprint(university_blueprint, url_prefix='/api')
 
 
 def create_app(config_name='development'):

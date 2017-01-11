@@ -49,7 +49,6 @@ class SingleGroup(Resource):
         @apiUse SuccessfullyCreated
         @apiUse ResourceAlreadyExistsError
         @apiUse CouldNotBeSavedError
-
         """
         parser = self.post_parser()
         args = parser.parse_args()
@@ -94,8 +93,8 @@ class SingleGroup(Resource):
         @apiParam {String} [description] A description for group.
         @apiUse NoSuchUserError
         @apiUse BadRequest
-        @apiSuccess 200 Success-Response Success message.
-        @apiSuccessExample Success-Response:
+        @apiSuccess 200 ModifiedGroup was successfully modified.
+        @apiSuccessExample ModifiedGroup:
           HTTP/1.1 200 OK
           {
             "message:""(user {user} added to group {group})+. ({key} set to {value})*"
