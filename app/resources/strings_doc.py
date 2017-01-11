@@ -62,7 +62,7 @@ fields in your request or you might not have provided a valid value for a field.
 """
 @apiDefine CouldNotBeSavedError
 @apiError CouldNotBeSavedError There was an internal server error. Saving your data was not successful.
-@apiErrorExample Error-Response:
+@apiErrorExample CouldNotBeSavedError:
   HTTP/1.1 500 Internal Server Error
   {
     "message": "Error while saving"

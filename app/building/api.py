@@ -23,7 +23,7 @@ class Buildings(Resource):
     def post(self):
         """
         @apiVersion 0.1.0
-        @api {get} /buildings/{university} All buildings from a university.
+        @api {post} /buildings/ Create a new building at a university.
         @apiName CreateABuilding
         @apiGroup Buildings
         @apiDescription Create a new Building.
@@ -70,12 +70,14 @@ class BuildingsFromUniversity(Resource):
         @apiGroup Buildings
         @apiDescription Get a list of all buildings at a university. The university has to be in the database.
         @apiUse BadRequest
+        @apiSuccess Success:
         @apiSuccess {Number}  id The id
         @apiSuccess {String}  address The address
         @apiSuccess {Number}  name The name
         @apiSuccess {String}  [description] The description
-          HTTP/1.1 200 OK
-          {
+        @apiSuccessExample Success:
+            HTTP/1.1 200 OK
+            {
             'name of university': [{
                 "id": the buildings id,
                 "address": the buildings address,
