@@ -17,7 +17,7 @@ class SingleGroup(Resource):
     def put_parser(self):
         parser = reqparse.RequestParser()
         parser.add_argument('user_id', type=int, required=True, help='you have to provide a user id')
-        parser.add_argument('group_id', type=int, required=True, help='you have to provide a user id')
+        parser.add_argument('group_id', type=int, required=True, help='you have to provide a group id')
         parser.add_argument('group_password', type=str, default=None)
         parser.add_argument('description', type=str, default=None)
         parser.add_argument('topic_area', type=str, default=None)
