@@ -76,8 +76,8 @@ class SingleUser(Resource):
         @api {post} /users/ Get user info
         @apiName GetUser
         @apiGroup Users
+        @apiUse TokenRequired
         @apiUse BadRequest
-        @apiSuccess UserInfo
         @apiSuccess {String} username The users name
         @apiSuccess {String} major  The subject the user is majoring in
         @apiSuccess {String} email The users email.
@@ -103,6 +103,7 @@ class SingleUser(Resource):
         @api {post} /users/ Modify a user
         @apiName ModifyUser
         @apiGroup Users
+        @apiUse TokenRequired
         @apiDescription Modify a users information. You may receive an error when trying to set new informations that another user already has, like email.
         @apiParam {String} [email] The users unique email.
         @apiParam {Number} [university_id] The university the user is enrolled in. The university must be present in the db.
@@ -138,6 +139,7 @@ class SingleUser(Resource):
         @api {delete} /users/ Delete a user
         @apiName DeleteUser
         @apiGroup Users
+        @apiUse TokenRequired
         @apiDescription Delete a users. Implementation is NOT done. There may be errors because auf unimplemented cascading behavior.
         @apiParam {Number} id The users unique id.
         @apiUse BadRequest

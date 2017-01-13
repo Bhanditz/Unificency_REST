@@ -88,3 +88,12 @@ fields in your request or you might not have provided a valid value for a field.
     "message:" "resource deleted"
     }
 """
+
+"""
+@apiDefine TokenRequired
+@apiHeader {String} Authorization The token that was retrieved using the /login route.
+@apiHeaderExample {json} TokenRequired:
+    {
+      "Authorization": "...ThisIsYourToken..."
+    }
+"""
