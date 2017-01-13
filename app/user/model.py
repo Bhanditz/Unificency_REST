@@ -1,9 +1,12 @@
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
+                          BadSignature, SignatureExpired)
 from flask_restful import fields
-
-from app import db, login_manager
-
+from passlib.apps import custom_app_context as pwd_context
+from app import db
+from instance import config as config
+import jwt
+import datetime
 
 class User(UserMixin, db.Model):
     """
@@ -35,33 +38,9 @@ class User(UserMixin, db.Model):
         }
     }
 
-    @property
-    def password(self):
-        """
-        Prevent pasword from being accessed
-        """
-        raise AttributeError('password is not a readable attribute.')
+    def hash_password(self, password):
+        self.password_hash = pwd_context.encrypt(password)
 
-    @password.setter
-    def password(self, password):
-        """
-        Set password to a hashed password
-        """
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):
-        """
-        Check if hashed password matches actual password
-        """
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return '<Employee: {}>'.format(self.username)
-
-
-# Set up user_loader
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
+    def verify_password(self, entered_password):
+        return pwd_context.verify(entered_password, self.password_hash)
 

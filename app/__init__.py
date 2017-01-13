@@ -1,11 +1,10 @@
 from config import app_config
 from flask import Flask
-from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-login_manager = LoginManager()
+
 
 
 def load_models():
@@ -27,11 +26,13 @@ def register_blueprints(app):
     """
     #try url_prefix='/api'...
     from app.user.api import user_blueprint
+    from app.validation.auth import auth_blueprint
     from app.room.api import room_blueprint
     from app.building.api import building_blueprint
     from app.note.api import note_blueprint
     from app.group.api import group_blueprint
     from app.university.api import university_blueprint
+    app.register_blueprint(auth_blueprint, url_prefix='/api')
     app.register_blueprint(group_blueprint, url_prefix='/api')
     app.register_blueprint(user_blueprint, url_prefix='/api')
     app.register_blueprint(room_blueprint, url_prefix='/api')
@@ -48,8 +49,6 @@ def create_app(config_name='development'):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     db.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_message = "You must be logged in to access this page."
     migrate = Migrate(app, db)
     load_models()
     register_blueprints(app)
