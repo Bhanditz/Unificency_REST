@@ -1,14 +1,10 @@
-from flask_login import UserMixin
-from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
-                          BadSignature, SignatureExpired)
 from flask_restful import fields
 from passlib.apps import custom_app_context as pwd_context
+from app.university import model as university_model
 from app import db
-from instance import config as config
-import jwt
-import datetime
 
-class User(UserMixin, db.Model):
+
+class User(db.Model):
     """
     Create a User table
     """
@@ -26,15 +22,22 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     # if the user is deleted, so are the notes
     notes = db.relationship('Note', backref='creator', lazy='dynamic', cascade="all, delete-orphan")
+    university = db.relationship('University', foreign_keys='User.university_id')
     # groups can be accessed via many-to-many relationship
     fields = {
         'basic': {
-            'email': fields.String(60),
-            'username': fields.String(20),
-            'major': fields.String(20)
+            'email': fields.String,
+            'username': fields.String,
+            'major': fields.String
         },
         'only_username': {
-            'username': fields.String(20)
+            'username': fields.String
+        },
+        'with_university': {
+            'email': fields.String,
+            'username': fields.String,
+            'major': fields.String,
+            'university': fields.Nested(university_model.University.fields['basic'])
         }
     }
 

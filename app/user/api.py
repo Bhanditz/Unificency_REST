@@ -30,13 +30,6 @@ class SingleUser(Resource):
         parser.add_argument('major', type=str)
         return parser
 
-    def delete_parser(self):
-        parser = reqparse.RequestParser()
-        # authorization has to be added
-        parser.add_argument('id', type=db.Integer, required=True, help='you have to provide an id for this user')
-        return parser
-
-
     def post(self): # works
         """
         @apiVersion 0.1.0
@@ -77,7 +70,34 @@ class SingleUser(Resource):
         return make_response('no such university', 404)
 
     @auth.token_required
-    def put(self,**kwargs): # works
+    def get(self, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {post} /users/ Get user info
+        @apiName GetUser
+        @apiGroup Users
+        @apiUse BadRequest
+        @apiSuccess UserInfo
+        @apiSuccess {String} username The users name
+        @apiSuccess {String} major  The subject the user is majoring in
+        @apiSuccess {String} email The users email.
+        @apiSuccess {json} The universities the user studies at. See example for the json
+        @apiSuccessExample UserInfo:
+         HTTP/1.1 200 OK
+            {
+            "username": "Romue404",
+             "university":
+                {"city": null, "country": "Germany", "id": 1, "name": "LMU"},
+              "major": "Informatik",
+              "email": "robert.mueller1990@googlemail.com"
+            }
+        """
+        user = kwargs.get('user')
+        user_info = model.User.query.get(user['user_id'])
+        return marshal(user_info, model.User.fields['with_university'])
+
+    @auth.token_required
+    def put(self, **kwargs): # works
         """
         @apiVersion 0.1.0
         @api {post} /users/ Modify a user
@@ -111,7 +131,8 @@ class SingleUser(Resource):
         else:
             return make_response("no such user", 404)
 
-    def delete(self):
+    @auth.token_required
+    def delete(self, **kwargs):
         """
         @apiVersion 0.1.0
         @api {delete} /users/ Delete a user
@@ -123,26 +144,14 @@ class SingleUser(Resource):
         @apiUse NoSuchUserError
         @apiUse SuccessfullyDeleted
         """
-        parser = self.delete_parser()
-        args = parser.parse_args()
+        user = kwargs.get('user')
         # try to delete if exists
-        user_to_delete = model.User.query.get(id)
+        user_to_delete = model.User.query.get(user['user_id'])
         if user_to_delete:
             db.session.delete(user_to_delete)
             db.session.commit()
             return make_response('user deleted', 200)
         return make_response('no such user', 404)
-
-"""
-class UserList(Resource):
-
-    def get(self, group_id):
-        group = group_model.Group.query.get(group_id)
-        if group:
-            # check if this functions with or without all
-            return marshal(group.members.all(), model.User.fields['basic'])
-        return make_response('no such university', 404)
-    """
 
 
 api.add_resource(SingleUser, '/users/')
