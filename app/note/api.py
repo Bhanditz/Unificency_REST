@@ -14,7 +14,7 @@ note_blueprint = Blueprint('note', __name__)
 api = Api(note_blueprint)
 
 # all notes from a group with id
-class GroupNotes(Resource):
+class GroupNotes(Resource): # requires token
     def get(self, group_id):
         """
         @apiVersion 0.1.0
@@ -41,7 +41,7 @@ class GroupNotes(Resource):
             return marshal(group_with_id.notes, model.Note.fields)
         return make_response('no notes found', 404)
 
-    def delete(self, id):
+    def delete(self, id): # requires token
         """
         @apiVersion 0.1.0
         @api {delete} /notes/{id} Delete a note.
@@ -64,7 +64,7 @@ class GroupNotes(Resource):
         return make_response('no such note', 404)
 
 
-class NoteCreation(Resource):
+class NoteCreation(Resource): # requires token
     # how the post request for this route looks like
     def post_parser(self):
         parser = reqparse.RequestParser()

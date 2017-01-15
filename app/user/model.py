@@ -3,6 +3,12 @@ from passlib.apps import custom_app_context as pwd_context
 from app.university import model as university_model
 from app import db
 
+# many to many
+GroupMembership = db.Table('groupmembership',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('group_id', db.Integer, db.ForeignKey('groups.id'))
+)
+
 
 class User(db.Model):
     """
@@ -21,9 +27,11 @@ class User(db.Model):
     major = db.Column(db.String(40))
     password_hash = db.Column(db.String(128))
     # if the user is deleted, so are the notes
-    notes = db.relationship('Note', backref='creator', lazy='dynamic', cascade="all, delete-orphan")
+    notes = db.relationship('Note', backref='creator', lazy='dynamic')
     university = db.relationship('University', foreign_keys='User.university_id')
-    # groups can be accessed via many-to-many relationship
+    # groups can be accessed via many-to-many relationship maybe revert to joined
+    groups = db.relationship('Group', secondary=GroupMembership, backref=db.backref('members', lazy='joined'),
+                             passive_deletes=False)
     fields = {
         'basic': {
             'email': fields.String,

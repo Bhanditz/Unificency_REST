@@ -51,7 +51,7 @@ class Auth(Resource):
         pw_check = user.verify_password(args['password'])
         if not pw_check:
             return jsonify(message='Incorrect password'), 401
-        token_response_json = generate_auth_token({'user_id': user.id, 'university_id': user.university_id})
+        token_response_json = generate_auth_token({'user_id': user.id})
         return make_response(jsonify(token_response_json), 200)
 
 
