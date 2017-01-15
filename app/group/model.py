@@ -35,7 +35,6 @@ class Group(db.Model):
         }
     }
 
-
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 
