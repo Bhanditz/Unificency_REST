@@ -231,7 +231,7 @@ class GroupsAtUniversity(Resource):
         """
         groups_at_uni = university_model.University.query.filter_by(name=university).first()
         # members has 'joined' property so no need to load them separately into memory
-        return marshal(groups_at_uni.groups.all(), model.Group.fields['with_members']) if groups_at_uni else make_response('no such group', 404)
+        return marshal(groups_at_uni.groups.all(), model.Group.fields['with_members']) if groups_at_uni else make_response(jsonify({'message': 'no such group'}), 404)
 
 
 class GroupWithId(Resource): # works
@@ -259,7 +259,7 @@ class GroupWithId(Resource): # works
 
         """
         group = model.Group.query.get(id)
-        return marshal(group, model.Group.fields['with_members']) if group else make_response('no such group', 404)
+        return marshal(group, model.Group.fields['with_members']) if group else make_response(jsonify({'message': 'no such group'}), 404)
 
 
 api.add_resource(CreateGroup, '/groups/')
