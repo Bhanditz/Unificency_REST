@@ -207,7 +207,7 @@ class LeaveGroup(Resource):
 
 class GroupsAtUniversity(Resource):
     @auth.token_required
-    def get(self, university):
+    def get(self, university, *args, **kwargs):
         """
         @apiVersion 0.1.0
         @api {get} /groups/{university} Get all groups at a university.
@@ -236,7 +236,7 @@ class GroupsAtUniversity(Resource):
 
 class GroupWithId(Resource): # works
     @auth.token_required
-    def get(self, id):
+    def get(self, id, *args, **kwargs):
         """
         @apiVersion 0.1.0
         @api {get} /groups/{id} Get group at id.
