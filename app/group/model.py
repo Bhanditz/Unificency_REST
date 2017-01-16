@@ -25,13 +25,15 @@ class Group(db.Model):
             'name': fields.String,
             'topic_area': fields.String,
             'description': fields.String,
+            'protected': fields.Boolean(attribute=lambda x: False if not x.password_hash else True),
             'members': fields.Nested(user_model.User.fields['only_username'])
         },
         'basic': {
             'id': fields.Integer,
             'name': fields.String,
             'topic_area': fields.String,
-            'description': fields.String
+            'description': fields.String,
+            'protected': fields.Boolean(attribute=lambda x: False if not x.password_hash else True)
         }
     }
 
