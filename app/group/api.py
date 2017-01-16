@@ -160,14 +160,21 @@ class JoinGroup(Resource):
             return make_response(jsonify({'message': 'This user does not exist'}), 404)
         if group_to_join in requesting_user.groups:
             return make_response(jsonify({'message': 'You are already a member of this group'}), 409)
-        if group_to_join.password_hash is not None:
+        if group_to_join.password_hash:
             if not args['password']:
                 return make_response(jsonify({'message': 'This group is password protected, please provide a password'}), 401)
             if group_to_join.verify_password(args['password']):
                 group_to_join.members.append(requesting_user)
                 db.session.commit()
                 return make_response(jsonify({'message': 'Added {user} to {group}'.format(user=requesting_user.username,group=group_to_join.name)}))
-            return make_response((jsonify({'message': 'The password you provided was wrong'})),401)
+            else:
+                return make_response((jsonify({'message': 'The password you provided was wrong'})),401)
+        else:
+            group_to_join.members.append(requesting_user)
+            db.session.commit()
+            return make_response(jsonify(
+                {'message': 'Added {user} to {group}'.format(user=requesting_user.username, group=group_to_join.name)}))
+
 
 class LeaveGroup(Resource):
 
@@ -201,7 +208,8 @@ class LeaveGroup(Resource):
             return make_response(jsonify({'message': 'You are not a member of this group'}), 401)
         group_to_leave.members.remove(requesting_user)
         db.session.commit()
-        return make_response('TEST')
+        return make_response(jsonify({'message': '{user} left {group}'.format(user=requesting_user.username,
+                                                                              group=group_to_leave.name)}))
 
 
 class GroupsAtUniversity(Resource):
