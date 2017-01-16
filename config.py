@@ -13,6 +13,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = True
     BUNDLE_ERRORS =True
+    SQLALCHEMY_POOL_SIZE = 100
+    SQLALCHEMY_POOL_RECYCLE = 280
 
 class ProductionConfig(Config):
     """
