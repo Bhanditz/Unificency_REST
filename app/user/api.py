@@ -58,15 +58,15 @@ class SingleUser(Resource):
             try:
                 db.session.add(new_user)
                 db.session.commit()
-                return make_response('created user', 201)
+                return make_response(jsonify({'message': 'created user'}))
             except IntegrityError as error:
                 s = ""
                 if "Duplicate entry" in error.message:
                     s = "this user already exists"
-                    return make_response(s, 404)
+                    return make_response(jsonify({'message': s}), 404)
                 else:
                     s = "an error occured, the user could not be saved"
-                    return make_response(s, 500)
+                    return make_response(jsonify({'message': s}), 500)
         return make_response(jsonify({'message': 'no such university'}), 404)
 
     @auth.token_required
@@ -128,7 +128,8 @@ class SingleUser(Resource):
                     updated.append(key)
         if len(updated) > 0:
             db.session.commit()
-            return make_response('updated {properties}.'.format(properties=', '.join(map(str,updated))), 201)
+            json_response = {'message': 'updated {properties}.'.format(properties=', '.join(map(str,updated)))}
+            return make_response(jsonify(json_response), 201)
         else:
             return make_response(jsonify({'message': 'no such user'}), 404)
 
@@ -152,7 +153,7 @@ class SingleUser(Resource):
         if user_to_delete:
             db.session.delete(user_to_delete)
             db.session.commit()
-            return make_response('user deleted', 200)
+            return make_response(jsonify({'message':'user deleted'}))
         return make_response(jsonify({'message': 'no such user'}), 404)
 
 
