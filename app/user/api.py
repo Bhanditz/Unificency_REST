@@ -67,7 +67,7 @@ class SingleUser(Resource):
                 else:
                     s = "an error occured, the user could not be saved"
                     return make_response(s, 500)
-        return make_response('no such university', 404)
+        return make_response(jsonify({'message': 'no such university'}), 404)
 
     @auth.token_required
     def get(self, **kwargs):
@@ -130,7 +130,7 @@ class SingleUser(Resource):
             db.session.commit()
             return make_response('updated {properties}.'.format(properties=', '.join(map(str,updated))), 201)
         else:
-            return make_response("no such user", 404)
+            return make_response(jsonify({'message': 'no such user'}), 404)
 
     @auth.token_required
     def delete(self, **kwargs):
@@ -153,7 +153,7 @@ class SingleUser(Resource):
             db.session.delete(user_to_delete)
             db.session.commit()
             return make_response('user deleted', 200)
-        return make_response('no such user', 404)
+        return make_response(jsonify({'message': 'no such user'}), 404)
 
 
 api.add_resource(SingleUser, '/users/')
