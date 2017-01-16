@@ -65,7 +65,7 @@ class Auth(Resource):
         args = self.login_parser().parse_args()
         user = user_model.User.query.filter_by(email=args['email']).first()
         if not user:
-            return jsonify(message='No such user'), 404
+            return make_response(jsonify(message='No such user'), 404)
         pw_check = user.verify_password(args['password'])
         if not pw_check:
             return jsonify(message='Incorrect password'), 401
