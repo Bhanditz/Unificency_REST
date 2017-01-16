@@ -117,7 +117,7 @@ class UpdateGroup(Resource):
                 setattr(group_to_join[0], key, value)
                 message += '{key} set to {value}. '.format(key=key, value=value)
             db.session.commit()
-        return make_response(message, 200)
+        return make_response(jsonify({'message': message}))
 
 
     def delete(self): pass
@@ -147,7 +147,7 @@ class JoinGroup(Resource):
         @apiSuccessExample ModifiedGroup:
           HTTP/1.1 200 OK
           {
-            "message:""(user {user} added to group {group})+. ({key} set to {value})*"
+            "message:""user {username} added to group {groupname}"
             }
         """
         args = self.post_parser().parse_args()
@@ -194,15 +194,14 @@ class LeaveGroup(Resource):
         requesting_user = user_model.User.query.get(user['user_id'])
         group_to_leave = model.Group.query.get(group_id)
         if not group_to_leave :
-            return make_response(jsonify({'message':'This group does not exist'}),404)
+            return make_response(jsonify({'message':'This group does not exist'}), 404)
         if not requesting_user:
             return make_response(jsonify({'message': 'This user does not exist'}), 404)
         if not (group_to_leave in requesting_user.groups):
             return make_response(jsonify({'message': 'You are not a member of this group'}), 401)
         group_to_leave.members.remove(requesting_user)
         db.session.commit()
-        return make_response(jsonify({'message': '{user} left {group}'.format(user=requesting_user.username,
-                                                                              group=group_to_leave.name)}))
+        return make_response('TEST')
 
 
 class GroupsAtUniversity(Resource):
