@@ -61,7 +61,7 @@ class CreateGroup(Resource):
                 db.session.add(new_group)
                 new_group.members.append(user_info)
                 db.session.commit()
-                return make_response('added group to database', 201)
+                return make_response(jsonify({'message': 'added group to database'}), 201)
             except IntegrityError as error:
                 db.session.rollback();
                 s = ""
@@ -72,7 +72,7 @@ class CreateGroup(Resource):
                     s = "an error occured, the building could not be saved"
                     return make_response(jsonify({'message':s}), 500)
         else:
-            return make_response('no such user or university', 404)
+            return make_response(jsonify({'message':'no such group or university'}), 404)
 
 
 class UpdateGroup(Resource):
