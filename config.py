@@ -20,6 +20,8 @@ class ProductionConfig(Config):
     """
     BUNDLE_ERRORS = True
     DEBUG = False
+    SQLALCHEMY_POOL_SIZE = 100
+    SQLALCHEMY_POOL_RECYCLE = 280
 
 app_config = {
     'development': DevelopmentConfig,

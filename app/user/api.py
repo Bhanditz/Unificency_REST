@@ -60,6 +60,7 @@ class SingleUser(Resource):
                 db.session.commit()
                 return make_response(jsonify({'message': 'created user'}))
             except IntegrityError as error:
+                db.session.rollback()
                 s = ""
                 if "Duplicate entry" in error.message:
                     return make_response(jsonify({'message': error.message}), 404)
