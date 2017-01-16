@@ -38,14 +38,32 @@ def token_required(f):
 class Auth(Resource):
     def login_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True, help='you have to provide a username to login')
+        parser.add_argument('email', type=str, required=True, help='you have to provide an email to login')
         parser.add_argument('password', type=str, required=True, help='you have to provide a password to login')
         return parser
 
     def post(self):
+        """
+        @apiVersion 0.1.0
+        @api {put} /login/
+        @apiName Login / get Token
+        @apiGroup Login
+        @apiDescription Login a user and receive a token.
+        @apiParam {String} email A topic area which describes the purpose of this group.
+        @apiParam {String} password A description for group.
+        @apiUse TokenRequired
+        @apiUse NoSuchUserError
+        @apiUse BadRequest
+        @apiSuccess 200 LoginSuccessfull User logged in.
+        @apiSuccessExample LoginSuccessfull:
+          HTTP/1.1 200 OK
+          {
+            "token:" "...yourToken..."
+            }
+        """
         # needs doc
         args = self.login_parser().parse_args()
-        user = user_model.User.query.filter_by(username=args['username']).first()
+        user = user_model.User.query.filter_by(email=args['email']).first()
         if not user:
             return jsonify(message='No such user'), 404
         pw_check = user.verify_password(args['password'])
