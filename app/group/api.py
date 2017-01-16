@@ -230,6 +230,7 @@ class GroupsAtUniversity(Resource):
             'name': the groups name,
             'topic_area': the groups area of topic,
             'description': the groups description,
+             'protected': true/false if the group is password protected,
             'members': [{name: users who are members of the group}]
             }
 
@@ -259,6 +260,7 @@ class GroupWithId(Resource): # works
             'name': the groups name,
             'topic_area': the groups area of topic,
             'description': the groups description,
+             'protected':  true/false if the group is password protected,
             'members': [{name: users who are members of the group}]
             }
 
