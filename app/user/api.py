@@ -62,8 +62,7 @@ class SingleUser(Resource):
             except IntegrityError as error:
                 s = ""
                 if "Duplicate entry" in error.message:
-                    s = "this user already exists"
-                    return make_response(jsonify({'message': s}), 404)
+                    return make_response(jsonify({'message': error.message}), 404)
                 else:
                     s = "an error occured, the user could not be saved"
                     return make_response(jsonify({'message': s}), 500)
