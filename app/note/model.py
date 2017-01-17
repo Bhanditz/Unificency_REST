@@ -1,5 +1,7 @@
 from app import db
 from flask_restful import fields
+from app.user import model as user_model
+from app.group import model as group_model
 
 
 class Note(db.Model):
@@ -17,7 +19,10 @@ class Note(db.Model):
     # owner (user)
 
     fields = {
+        'id': fields.Integer,
         'name': fields.String,
         'topic': fields.String,
+        'creator': fields.Nested(user_model.User.fields['only_username']),
+        'group': fields.Nested(group_model.Group.fields['only_id_and_name']),
         'content': fields.String
     }

@@ -55,3 +55,6 @@ class User(db.Model):
     def verify_password(self, entered_password):
         return pwd_context.verify(entered_password, self.password_hash)
 
+    def is_member_of(self, group):
+        return True if group in self.groups else False
+

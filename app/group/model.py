@@ -34,6 +34,10 @@ class Group(db.Model):
             'topic_area': fields.String,
             'description': fields.String,
             'protected': fields.Boolean(attribute=lambda x: False if not x.password_hash else True)
+        },
+        'only_id_and_name': {
+            'id': fields.Integer,
+            'name': fields.String
         }
     }
 
@@ -42,6 +46,7 @@ class Group(db.Model):
 
     def verify_password(self, entered_password):
         return pwd_context.verify(entered_password, self.password_hash)
+
 
 
 
