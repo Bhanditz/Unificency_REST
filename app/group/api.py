@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response
-from flask_restful import Api, Resource, reqparse, marshal_with
+from flask_restful import Api, Resource, reqparse, fields
 from sqlalchemy.exc import IntegrityError
 from flask_restful import marshal
 from flask import jsonify
@@ -8,6 +8,8 @@ import model
 from app.validation import auth
 from app.university import model as university_model
 from app.user import model as user_model
+from app.group import model as group_model
+from app.resources import response
 
 
 group_blueprint = Blueprint('group', __name__)
@@ -17,10 +19,10 @@ api = Api(group_blueprint)
 class CreateGroup(Resource):
     def post_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('name', type=str, required=True, help='you have to provide a name for this group')
-        parser.add_argument('topic_area', type=str, required=True, help='you have to provide a topic area for this group')
-        parser.add_argument('password', type=str, default=None)
-        parser.add_argument('description', type=str, required=True, help='you have to provide a description for this group')
+        parser.add_argument('name', required=True, help='you have to provide a name for this group')
+        parser.add_argument('topic_area', required=True, help='you have to provide a topic area for this group')
+        parser.add_argument('password', default=None)
+        parser.add_argument('description', required=True, help='you have to provide a description for this group')
         return parser
 
     @auth.token_required
@@ -78,9 +80,9 @@ class CreateGroup(Resource):
 class UpdateGroup(Resource):
     def put_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('password', type=str, default=None)
-        parser.add_argument('description', type=str, default=None)
-        parser.add_argument('topic_area', type=str, default=None)
+        parser.add_argument('password', default=None)
+        parser.add_argument('description', default=None)
+        parser.add_argument('topic_area', default=None)
         return parser
 
     @auth.token_required
@@ -127,7 +129,7 @@ class UpdateGroup(Resource):
 class JoinGroup(Resource):
     def post_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('password', type=str)
+        parser.add_argument('password')
         return parser
 
     @auth.token_required
@@ -231,14 +233,24 @@ class GroupsAtUniversity(Resource):
             'topic_area': the groups area of topic,
             'description': the groups description,
              'protected': true/false if the group is password protected,
+             'im_a_member': true/false shows if you are a member,
             'members': [{name: users who are members of the group}]
             }
 
         @apiError NoSuchResourceError
 
         """
-        groups_at_uni = university_model.University.query.filter_by(name=university).first()
-        return marshal(groups_at_uni.groups.all(), model.Group.fields['with_members']) if groups_at_uni else make_response(jsonify({'message': 'no such group'}), 404)
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        uni = university_model.University.query.filter_by(name=university).first()
+        res = []
+        if user and uni.groups:
+            for group in uni.groups.all():
+                cpy = group_model.Group.fields['with_members'].copy()
+                cpy.update({'im_a_member': fields.Boolean(attribute=lambda x: True if user in group.members else False)})
+                res.append(marshal(group, cpy))
+            return jsonify(res)
+        return response.simple('no such group or user', status=404)
 
 
 class GroupWithId(Resource): # works

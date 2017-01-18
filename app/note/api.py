@@ -89,7 +89,7 @@ class NoteCRUD(Resource):
             if user.is_member_of(group):
                 # explicitly load because of lazy relationship
                 notes = group.notes.all()
-                return response.simple_response(marshal(notes, model.Note.fields))
+                return marshal(notes, model.Note.fields)
             else:
                 return make_response(jsonify({'message':'no you are not a member of this group'}), 404)
         return response.simple_response('no notes found', status=404)
