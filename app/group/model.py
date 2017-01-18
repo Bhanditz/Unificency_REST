@@ -36,6 +36,7 @@ class Group(db.Model):
             'protected': fields.Boolean(attribute=lambda x: False if not x.password_hash else True)
         },
         'only_id_and_name': {
+            'topic_area': fields.String,
             'id': fields.Integer,
             'name': fields.String
         }

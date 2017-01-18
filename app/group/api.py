@@ -230,11 +230,7 @@ class GroupsAtUniversity(Resource):
           {
             'id': the groups id,
             'name': the groups name,
-            'topic_area': the groups area of topic,
-            'description': the groups description,
-             'protected': true/false if the group is password protected,
-             'im_a_member': true/false shows if you are a member,
-            'members': [{name: users who are members of the group}]
+            'topic_area': the groups area of topic
             }
 
         @apiError NoSuchResourceError
@@ -243,14 +239,9 @@ class GroupsAtUniversity(Resource):
         user_id = kwargs.get('user')['user_id']
         user = user_model.User.query.get(user_id)
         uni = university_model.University.query.filter_by(name=university).first()
-        res = []
-        if user and uni.groups:
-            for group in uni.groups.all():
-                cpy = group_model.Group.fields['with_members'].copy()
-                cpy.update({'im_a_member': fields.Boolean(attribute=lambda x: True if user in group.members else False)})
-                res.append(marshal(group, cpy))
-            return jsonify(res)
-        return response.simple('no such group or user', status=404)
+        all_groups = uni.groups.all()
+        return jsonify(marshal(all_groups, model.Group.fields['only_id_and_name']))\
+            if user and all_groups else response.simple('no such group or user', status=404)
 
 
 class GroupWithId(Resource): # works
@@ -278,8 +269,14 @@ class GroupWithId(Resource): # works
         @apiUse NoSuchResourceError
 
         """
-        group = model.Group.query.get(id)
-        return marshal(group, model.Group.fields['with_members']) if group else make_response(jsonify({'message': 'no such group'}), 404)
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        group = group_model.Group.query.get(id)
+        if user and group:
+            cpy = group_model.Group.fields['with_members'].copy()
+            cpy.update({'im_a_member': fields.Boolean(attribute=lambda x: True if user in group.members else False)})
+            return jsonify(marshal(group, cpy))
+        return response.simple('no such group or user', status=404)
 
 
 api.add_resource(CreateGroup, '/groups/')
