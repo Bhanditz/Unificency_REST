@@ -1,6 +1,7 @@
 from flask import Blueprint, make_response
-from flask_restful import Api, Resource, reqparse, fields
+from flask_restful import Api, Resource, reqparse, fields, request
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import not_
 from flask_restful import marshal
 from flask import jsonify
 from app import db
@@ -219,12 +220,14 @@ class GroupsAtUniversity(Resource):
     def get(self, university, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /groups/{university} Get all groups at a university.
+        @api {get} /groups/{university}?isMember={true/false} Get all groups at a university.
         @apiName GetGroupsAtUniversity
+        @apiDescription Returns a list of all groups at the specified university or, if you provide the parameter isMember
+        you will receive a list of groups you are (not) a member of.
         @apiGroup Groups
         @apiUse TokenRequired
         @apiUse BadRequest
-        @apiSuccess 200 message Success message for group creation.
+        @apiSuccess 200 message Success message.
         @apiSuccessExample Success-Response:
           HTTP/1.1 200 OK
           {
@@ -239,7 +242,20 @@ class GroupsAtUniversity(Resource):
         user_id = kwargs.get('user')['user_id']
         user = user_model.User.query.get(user_id)
         uni = university_model.University.query.filter_by(name=university).first()
-        all_groups = uni.groups.all()
+        all_groups = uni.groups
+        is_member = request.args.get('isMember')
+        if is_member:
+            if is_member.lower() == 'true':
+                return jsonify(marshal(user.groups, model.Group.fields['only_id_and_name']))
+            elif is_member.lower() == 'false':
+                #user not in uni.groups
+                g = all_groups.filter(
+                    ~group_model.Group.members.any(user_model.User.id == user_id)
+                ).all()
+                return jsonify(marshal(g, model.Group.fields['only_id_and_name']))
+            else:
+                return response.simple_response('expected is_member to be true or false, got {0}'.format(is_member), status=400)
+        all_groups = all_groups.all()
         return jsonify(marshal(all_groups, model.Group.fields['only_id_and_name']))\
             if user and all_groups else response.simple('no such group or user', status=404)
 
