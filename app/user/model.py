@@ -31,7 +31,7 @@ class User(db.Model):
     university = db.relationship('University', foreign_keys='User.university_id')
     # groups can be accessed via many-to-many relationship maybe revert to joined
     groups = db.relationship('Group', secondary=GroupMembership, backref=db.backref('members', lazy='joined'),
-                             passive_deletes=False)
+                             passive_deletes=False, order_by='desc(Group.id)')
     fields = {
         'basic': {
             'email': fields.String,

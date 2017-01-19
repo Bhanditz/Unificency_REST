@@ -251,7 +251,7 @@ class GroupsAtUniversity(Resource):
                 #user not in uni.groups
                 g = all_groups.filter(
                     ~group_model.Group.members.any(user_model.User.id == user_id)
-                ).all()
+                ).order_by(model.Group.id.desc()).all()
                 return jsonify(marshal(g, model.Group.fields['only_id_and_name']))
             else:
                 return response.simple_response('expected is_member to be true or false, got {0}'.format(is_member), status=400)
