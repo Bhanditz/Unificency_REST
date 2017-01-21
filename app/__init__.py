@@ -2,7 +2,6 @@ from config import app_config
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask.ext.uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
 
 db = SQLAlchemy()
 
