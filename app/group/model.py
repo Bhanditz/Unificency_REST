@@ -38,7 +38,8 @@ class Group(db.Model):
         'only_id_and_name': {
             'topic_area': fields.String,
             'id': fields.Integer,
-            'name': fields.String
+            'name': fields.String,
+            'protected': fields.Boolean(attribute=lambda x: False if not x.password_hash else True)
         }
     }
 

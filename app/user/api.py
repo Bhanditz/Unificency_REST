@@ -1,4 +1,5 @@
-from flask import Blueprint, make_response, jsonify
+import os
+from flask import Blueprint, make_response, jsonify, request
 from flask_restful import Api, Resource, reqparse, marshal_with, marshal
 from app import db
 from app.university import model as university_model
@@ -6,7 +7,9 @@ from app.validation import auth
 import model
 from app.validation import email as validator
 from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import secure_filename
 import app.validation.auth
+import config
 
 user_blueprint = Blueprint('user', __name__)
 api = Api(user_blueprint)
@@ -157,6 +160,26 @@ class SingleUser(Resource):
         return make_response(jsonify({'message': 'no such user'}), 404)
 
 
+class ProfilePic(Resource):
+    def allowed_file(self, filename):
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in config.Config().ALLOWED_EXTENSIONS
+    #@auth.token_required
+    def post(self, *args, **kwargs):
+        if 'file' not in request.files:
+            return request.simple('You have to provide a file', 404)
+        path = os.path.dirname(os.path.abspath(__file__))
+        file = request.files['file']
+        if file.filename == '':
+            return request.simple('Empty file', 404)
+        if file and self.allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            path = os.path.join(config.Config().UPLOAD_FOLDER_USER_PROFILE_IMAGES, filename)
+            file.save(path)
+
+        return jsonify({'destination': path})
+
 api.add_resource(SingleUser, '/users/')
+api.add_resource(ProfilePic, '/users/images/')
 
 

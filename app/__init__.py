@@ -2,6 +2,7 @@ from config import app_config
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask.ext.uploads import UploadSet, IMAGES, configure_uploads, patch_request_class
 
 db = SQLAlchemy()
 
@@ -48,6 +49,7 @@ def create_app(config_name='development'):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
+    patch_request_class(app)
     #app.url_map.strict_slashes = False
     db.init_app(app)
     migrate = Migrate(app, db)
