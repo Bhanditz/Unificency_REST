@@ -199,7 +199,8 @@ class NoteById(Resource):
         note_to_return = model.Note.query.get(id_)
         if not user or not note_to_return:
             return response.simple_response('no such note or user', status=404)
-        if note_to_return not in user.notes.all():
+        if note_to_return.group_id not in user.groups:
+            #user.groups joinn note_to_return id in user.group
             return response.simple_response('this is not your note', 401)
         return marshal(note_to_return, note_model.Note.fields)
 

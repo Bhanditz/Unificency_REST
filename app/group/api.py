@@ -242,6 +242,8 @@ class GroupsAtUniversity(Resource):
         user_id = kwargs.get('user')['user_id']
         user = user_model.User.query.get(user_id)
         uni = university_model.University.query.filter_by(name=university).first()
+        if not uni:
+            return response.simple_response('no such university')
         all_groups = uni.groups
         is_member = request.args.get('isMember')
         if is_member:

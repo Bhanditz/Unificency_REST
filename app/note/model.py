@@ -3,6 +3,9 @@ from flask_restful import fields
 from app.user import model as user_model
 from app.group import model as group_model
 
+# likes / unlike
+# favs
+
 
 class Note(db.Model):
     __tablename__ = 'notes'
