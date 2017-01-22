@@ -52,8 +52,8 @@ class User(db.Model):
             'username': fields.String,
             'major': fields.String,
             'university': fields.Nested(university_model.University.fields['basic']),
-            'number_of_groups': fields.Integer(attribute=lambda u: len(u.groups)),
-            'number_of_notes': fields.Integer(attribute=lambda u: u.notes.count())
+            'groups_count': fields.Integer(attribute=lambda u: len(u.groups)),
+            'notes_count': fields.Integer(attribute=lambda u: u.notes.count())
         }
     }
 
