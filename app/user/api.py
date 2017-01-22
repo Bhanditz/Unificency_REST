@@ -84,7 +84,9 @@ class SingleUser(Resource):
         @apiSuccess {String} username The users name
         @apiSuccess {String} major  The subject the user is majoring in
         @apiSuccess {String} email The users email.
-        @apiSuccess {json} The universities the user studies at. See example for the json
+        @apiSuccess {String} university The universities the user studies at. See example for the json
+        @apiSuccess groups_count number of groups the user is enrolled in
+        @apiSuccess notes_count number of notes the user has posted so far
         @apiSuccessExample UserInfo:
          HTTP/1.1 200 OK
             {
