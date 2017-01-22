@@ -92,7 +92,9 @@ class SingleUser(Resource):
              "university":
                 {"city": null, "country": "Germany", "id": 1, "name": "LMU"},
               "major": "Informatik",
-              "email": "robert.mueller1990@googlemail.com"
+              "email": "robert.mueller1990@googlemail.com",
+              "groups_count": number of groups the user is enrolled in,
+              "notes_count": number of notes the user has posted so far
             }
         """
         user = kwargs.get('user')
