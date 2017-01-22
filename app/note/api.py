@@ -1,30 +1,30 @@
-from flask import Blueprint, make_response
+from flask import Blueprint, make_response, jsonify
 from flask_restful import Api, Resource, reqparse, marshal
-from flask import jsonify
 from app import db
 import model
 from app.user import model as user_model
 from app.group import model as group_model
 from app.resources import response
 from app.validation import auth
-
+from app.note import model as note_model
 
 note_blueprint = Blueprint('note', __name__)
 api = Api(note_blueprint)
 
 class NoteCRUD(Resource):
+
     def post_parser(self):
         parser = reqparse.RequestParser()
         parser.add_argument('content', required=True, help='you have to provide some content for this note')
-        parser.add_argument('name', type=str, required=True, help='you have to provide a name for this note')
-        parser.add_argument('topic', type=str, required=True, help='you have to provide a topic for this note')
+        parser.add_argument('name', required=True, help='you have to provide a name for this note')
+        parser.add_argument('topic', required=True, help='you have to provide a topic for this note')
         return parser
 
     @auth.token_required
     def post(self, group_id, *args, **kwargs):#note.creator und note.group
         """
         @apiVersion 0.1.0
-        @api {post} /notes/{group_id}/create/ Create a note.
+        @api {post} /groups/<int:group_id>/notes/ Create a note.
         @apiName CreateNote
         @apiGroup Notes
         @apiDescription Create a new Note.
@@ -60,7 +60,7 @@ class NoteCRUD(Resource):
     def get(self, group_id, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /notes/{group_id}/ Get a groups notes.
+        @api {get} /groups/<int:group_id>/notes/ Get a groups notes.
         @apiName GetGroupNotes
         @apiGroup Notes
         @apiUse TokenRequired
@@ -91,10 +91,18 @@ class NoteCRUD(Resource):
                 notes = group.notes.all()
                 return marshal(notes, model.Note.fields)
             else:
-                return make_response(jsonify({'message':'no you are not a member of this group'}), 404)
+                return response.simple_response('no you are not a member of this group', status=404)
         return response.simple_response('no notes found', status=404)
 
-class DeleteById(Resource):
+
+class NoteById(Resource):
+    def put_parser(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('name', default=None)
+        parser.add_argument('content', default=None)
+        parser.add_argument('topic', default=None)
+        return parser
+
     @auth.token_required
     def delete(self, id_, *args, **kwargs):
         """
@@ -120,6 +128,123 @@ class DeleteById(Resource):
             return response.simple_response('note deleted')
         return response.simple_response('you must be the creator of this note in order to delete it', status=401)
 
+    @auth.token_required
+    def put(self, id_, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {put} /notes/{note_id}/ Modify a note.
+        @apiName ModifyNote
+        @apiGroup Notes
+        @apiUse TokenRequired
+        @apiDescription Modify a note.
+        @apiUse BadRequest
+        @apiParam {String} name The notes name.
+        @apiParam {String} topic The notes topic.
+        @apiParam {String} content The notes content.
+        @apiUse NoSuchResourceError
+        @apiUse SuccessfullyModified
+        """
+        parser = self.put_parser()
+        args = parser.parse_args()
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        note_to_modify = model.Note.query.get(id_)
+        if not user or not note_to_modify:
+            return response.simple_response('no such note or user', status=404)
+        if note_to_modify in user.notes:
+            message = ""
+            for key, value in args.items():
+                if key and value:
+                    setattr(note_to_modify, key, value)
+                    message += '{key} set to {value} | '.format(key=key, value=value)
+            db.session.commit()
+            return response.simple_response(message)
+        return response.simple_response('you must be the creator of this note in order to delete it', status=401)
 
-api.add_resource(NoteCRUD, '/notes/<int:group_id>')
-api.add_resource(DeleteById, '/notes/<int:id_>/')
+    @auth.token_required
+    def get(self, id_, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {get} /notes/{id} Get a note by id
+        @apiName NoteById
+        @apiGroup Notes
+        @apiUse TokenRequired
+        @apiDescription  Get a note by id.
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response:
+        @apiUse NoSuchUserError
+        @apiUse NoSuchResourceError
+        @apiSuccessExample Success-Response
+          HTTP/1.1 200 OK
+        [
+          {
+            "content": "Der B-Baum ist so schoen! ",
+            "group": {
+              "topic_area": "Machine Learning",
+              "protected": true,
+              "id": 9,
+              "name": "The Royals"
+            },
+            "name": "B-Baum",
+            "creator": {
+              "username": "Roberto"
+            },
+            "topic": "Algorithmen",
+            "id": 1
+          }
+        ]
+        """
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        note_to_return = model.Note.query.get(id_)
+        if not user or not note_to_return:
+            return response.simple_response('no such note or user', status=404)
+        if note_to_return not in user.notes.all():
+            return response.simple_response('this is not your note', 401)
+        return marshal(note_to_return, note_model.Note.fields)
+
+
+class UsersNotes(Resource):
+    @auth.token_required
+    def get(self, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {get} /users/notes/ Get a users notes.
+        @apiName UsersNotes
+        @apiGroup Notes
+        @apiUse TokenRequired
+        @apiDescription Get a users note.
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response:
+        @apiUse NoSuchUserError
+        @apiSuccessExample Success-Response
+          HTTP/1.1 200 OK
+        [
+          {
+            "content": "Der B-Baum ist so schoen! ",
+            "group": {
+              "topic_area": "Machine Learning",
+              "protected": true,
+              "id": 9,
+              "name": "The Royals"
+            },
+            "name": "B-Baum",
+            "creator": {
+              "username": "Roberto"
+            },
+            "topic": "Algorithmen",
+            "id": 1
+          }, .....
+        ]
+        """
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        if not user:
+            response.simple_response('no such user')
+        return marshal(user.notes.all(), note_model.Note.fields)
+
+
+
+api.add_resource(NoteCRUD, '/groups/<int:group_id>/notes/')
+api.add_resource(NoteById, '/notes/<int:id_>/')
+api.add_resource(UsersNotes, '/users/notes/')

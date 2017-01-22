@@ -90,6 +90,16 @@ fields in your request or you might not have provided a valid value for a field.
 """
 
 """
+@apiDefine SuccessfullyModified
+@apiSuccess SuccessfullyModified There were no errors, your request was successfully carried out. The resource was modified.
+@apiSuccessExample Success-Response:
+  HTTP/1.1 201 OK
+  {
+    "message:" "resource modified"
+    }
+"""
+
+"""
 @apiDefine TokenRequired
 @apiHeader {String} Authorization The token that was retrieved using the /login route.
 @apiHeaderExample {json} TokenRequired:
