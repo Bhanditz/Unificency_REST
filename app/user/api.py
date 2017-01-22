@@ -97,7 +97,7 @@ class SingleUser(Resource):
         """
         user = kwargs.get('user')
         user_info = model.User.query.get(user['user_id'])
-        return marshal(user_info, model.User.fields['with_university'])
+        return marshal(user_info, model.User.fields['extended'])
 
     @auth.token_required
     def put(self, **kwargs): # works

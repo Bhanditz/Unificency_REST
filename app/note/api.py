@@ -159,7 +159,7 @@ class NoteById(Resource):
                     message += '{key} set to {value} | '.format(key=key, value=value)
             db.session.commit()
             return response.simple_response(message)
-        return response.simple_response('you must be the creator of this note in order to delete it', status=401)
+        return response.simple_response('you must be the creator of this note in order to modify it', status=401)
 
     @auth.token_required
     def get(self, id_, *args, **kwargs):

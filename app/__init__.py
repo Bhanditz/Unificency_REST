@@ -3,20 +3,21 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
-
-
 
 def load_models():
     """
     load the models
     """
     from app.group import model as group_model
-    from app.user import model as user_model
+    from app.note import model as note_model
+    from app.user import model as user_model_
     from app.building import model as building_model
     from app.room import model as room_model
-    from app.note import model as note_model
     from app.university import model as university_model
+
+db = SQLAlchemy()
+load_models()
+
 
 
 
@@ -51,7 +52,6 @@ def create_app(config_name='development'):
     #app.url_map.strict_slashes = False
     db.init_app(app)
     migrate = Migrate(app, db)
-    load_models()
     register_blueprints(app)
     return app
 

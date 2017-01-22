@@ -2,13 +2,13 @@ from flask_restful import fields
 from passlib.apps import custom_app_context as pwd_context
 from app.university import model as university_model
 from app import db
+from sqlalchemy import func
 
 # many to many
 GroupMembership = db.Table('groupmembership',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id'))
 )
-
 
 class User(db.Model):
     """
@@ -46,6 +46,14 @@ class User(db.Model):
             'username': fields.String,
             'major': fields.String,
             'university': fields.Nested(university_model.University.fields['basic'])
+        },
+        'extended': {
+            'email': fields.String,
+            'username': fields.String,
+            'major': fields.String,
+            'university': fields.Nested(university_model.University.fields['basic']),
+            'number_of_groups': fields.Integer(attribute=lambda u: len(u.groups)),
+            'number_of_notes': fields.Integer(attribute=lambda u: u.notes.count())
         }
     }
 
