@@ -90,7 +90,7 @@ class UpdateGroup(Resource):
     def put(self, group_id, *args, **kwargs): # works # requires token
         """
         @apiVersion 0.1.0
-        @api {put} /groups/{group_id}/update Modify a group
+        @api {put} /groups/{group_id}/ Modify a group
         @apiName ModifyGroup
         @apiGroup Groups
         @apiDescription Modify a group. Note that you have to provide Token and the user must be a member of this group.
@@ -113,7 +113,7 @@ class UpdateGroup(Resource):
         # password protection check to come
         user = user_model.User.query.get(user['user_id'])
         group_to_join = [group for group in user.groups if group.id == group_id]
-        if not (group_to_join[0] or user):
+        if not (group_to_join or user):
             return make_response(jsonify({'message': 'you need to be a member of this group in order to modify its data'}), 404)
         for key, value in {k: v for k, v in args.iteritems() if 'id' not in k}.iteritems():
             if key and value:
@@ -137,7 +137,7 @@ class JoinGroup(Resource):
     def post(self, group_id, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {post} /groups/{group_id}/join Join a group
+        @api {post} /groups/{group_id}/join/ Join a group
         @apiName JoinGroup
         @apiGroup Groups
         @apiDescription Join a group. Note that you have to provide a token.
@@ -197,7 +197,7 @@ class LeaveGroup(Resource):
         @apiSuccessExample ModifiedGroup:
           HTTP/1.1 200 OK
           {
-            "message:""(user {user} added to group {group})+. ({key} set to {value})*"
+            "message:" "({key} set to {value} | )*"
             }
         """
         user = kwargs.get('user')
@@ -292,12 +292,12 @@ class GroupWithId(Resource): # works
             cpy = group_model.Group.fields['with_members'].copy()
             cpy.update({'im_a_member': fields.Boolean(attribute=lambda x: True if user in group.members else False)})
             return jsonify(marshal(group, cpy))
-        return response.simple('no such group or user', status=404)
+        return response.simple_response('no such group or user', status=404)
 
 
 api.add_resource(CreateGroup, '/groups/')
 api.add_resource(GroupsAtUniversity, '/groups/<string:university>/')
 api.add_resource(GroupWithId, '/groups/<int:id>/')
 api.add_resource(JoinGroup,'/groups/<int:group_id>/join/')
-api.add_resource(UpdateGroup,'/groups/<int:group_id>/update/')
+api.add_resource(UpdateGroup,'/groups/<int:group_id>/')
 api.add_resource(LeaveGroup,'/groups/<int:group_id>/leave/')

@@ -165,7 +165,7 @@ class NoteById(Resource):
     def get(self, id_, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /notes/{id} Get a note by id
+        @api {get} /notes/{id}/ Get a note by id
         @apiName NoteById
         @apiGroup Notes
         @apiUse TokenRequired
