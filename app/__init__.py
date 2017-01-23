@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 
+db = SQLAlchemy()
+
 def load_models():
     """
     load the models
@@ -14,11 +16,6 @@ def load_models():
     from app.building import model as building_model
     from app.room import model as room_model
     from app.university import model as university_model
-
-db = SQLAlchemy()
-load_models()
-
-
 
 
 def register_blueprints(app):
@@ -42,7 +39,7 @@ def register_blueprints(app):
     app.register_blueprint(university_blueprint, url_prefix='/api')
 
 
-def create_app(config_name='development'):
+def create_app(config_name='production'):
     """
     create the app
     """
@@ -52,6 +49,7 @@ def create_app(config_name='development'):
     #app.url_map.strict_slashes = False
     db.init_app(app)
     migrate = Migrate(app, db)
+    load_models()
     register_blueprints(app)
     return app
 

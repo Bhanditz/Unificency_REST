@@ -2,6 +2,7 @@ from flask import Blueprint, make_response, jsonify
 from flask_restful import Api, Resource, reqparse, marshal
 from app import db
 import model
+from sqlalchemy import select
 from app.user import model as user_model
 from app.group import model as group_model
 from app.resources import response
@@ -199,10 +200,8 @@ class NoteById(Resource):
         note_to_return = model.Note.query.get(id_)
         if not user or not note_to_return:
             return response.simple_response('no such note or user', status=404)
-        if note_to_return.group_id not in user.groups:
-            #user.groups joinn note_to_return id in user.group
-            return response.simple_response('this is not your note', 401)
-        return marshal(note_to_return, note_model.Note.fields)
+        users_note_check = note_to_return.group_id in [group.id for group in user.groups]
+        return marshal(note_to_return, note_model.Note.fields) if users_note_check else response.simple_response('this is not your note', 401)
 
 
 class UsersNotes(Resource):
