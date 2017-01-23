@@ -241,6 +241,34 @@ class ProfilePic(Resource):
         APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
         return send_file(os.path.join(APP_ROOT, profile_img_path))
 
+    @auth.token_required
+    def delete(self, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {delete} /users/images/ Delete a profile pic
+        @apiName DeleteProfilcePicture
+        @apiGroup Users
+        @apiUse TokenRequired
+        @apiDescription Upload a profile pic.
+        @apiUse BadRequest
+        apiUse SuccessfullyDeleted
+        @apiUse NoSuchUserError
+        """
+        user_id = kwargs.get('user')['user_id']
+        user = model.User.query.get(user_id)
+        if not user:
+            return response.simple_response('no such user', status=404)
+        profile_img_path = user.profile_img_path
+        print profile_img_path
+        if not profile_img_path:
+            return response.simple_response('no profile image uploaded yet', status=404)
+        APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
+        os.remove(os.path.join(APP_ROOT, profile_img_path))
+        user.profile_img_path = None
+        db.session.commit()
+        return response.simple_response('deleted profile image')
+
+
 api.add_resource(SingleUser, '/users/')
 api.add_resource(ProfilePic, '/users/images/')
 
