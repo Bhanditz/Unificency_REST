@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, jsonify
+from flask import Blueprint, make_response, jsonify, request
 from flask_restful import Api, Resource, reqparse, marshal
 from app import db
 import model
@@ -11,6 +11,7 @@ from app.note import model as note_model
 
 note_blueprint = Blueprint('note', __name__)
 api = Api(note_blueprint)
+
 
 class NoteCRUD(Resource):
 
@@ -201,7 +202,7 @@ class NoteById(Resource):
         if not user or not note_to_return:
             return response.simple_response('no such note or user', status=404)
         users_note_check = note_to_return.group_id in [group.id for group in user.groups]
-        return marshal(note_to_return, note_model.Note.fields) if users_note_check else response.simple_response('this is not your note', 401)
+        return marshal(note_to_return, note_model.Note.fields) if users_note_check else response.simple_response('this is not your note', status=401)
 
 
 class UsersNotes(Resource):
@@ -209,11 +210,11 @@ class UsersNotes(Resource):
     def get(self, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /users/notes/ Get a users notes.
+        @api {get} /users/notes?favorites={true/false} Get a users (favorite) notes.
         @apiName UsersNotes
         @apiGroup Notes
         @apiUse TokenRequired
-        @apiDescription Get a users note.
+        @apiDescription Get a users note. If onlyFavorites is provided, this will return the users favorite notes.
         @apiUse BadRequest
         @apiSuccess 200 Success-Response:
         @apiUse NoSuchUserError
@@ -237,14 +238,55 @@ class UsersNotes(Resource):
           }, .....
         ]
         """
+
         user_id = kwargs.get('user')['user_id']
         user = user_model.User.query.get(user_id)
         if not user:
             response.simple_response('no such user')
+        favorites = request.args.get('favorites')
+        if favorites:
+            if favorites.lower() == 'true':
+                return marshal(user.favorite_notes.all(), note_model.Note.fields)
+            if favorites.lower() not in ['true', 'false']:
+                return response.simple_response('expected ?favorites=[true|false], got {0}'.format(favorites))
         return marshal(user.notes.all(), note_model.Note.fields)
+
+
+class FavoriteNotes(Resource):
+    @auth.token_required
+    def post(self, id_, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {post} /users/notes/{id}/favor/ Favor a note.
+        @apiName FavorNote
+        @apiGroup Notes
+        @apiUse TokenRequired
+        @apiDescription Favor a note.
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response:
+        @apiUse NoSuchUserError
+        @apiSuccessExample Success-Response
+          HTTP/1.1 200 OK
+          {
+            "message": "added note {note_name} to your favorites"
+          }
+        """
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        note = note_model.Note.query.get(id_)
+        if not user or not note:
+            return response.simple_response('no such user or note', status=404)
+        success = user.add_favorite(note)
+        if not success:
+            return response.simple_response('you dont need to favor this note again :-)', status=401)
+        db.session.commit()
+        return response.simple_response('added note {0} to your favorites'. format(note.name))
+
+
 
 
 
 api.add_resource(NoteCRUD, '/groups/<int:group_id>/notes/')
 api.add_resource(NoteById, '/notes/<int:id_>/')
+api.add_resource(FavoriteNotes, '/notes/<int:id_>/favor/')
 api.add_resource(UsersNotes, '/users/notes/')

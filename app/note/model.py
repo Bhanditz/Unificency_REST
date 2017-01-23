@@ -6,7 +6,6 @@ from app.group import model as group_model
 # likes / unlike
 # favs
 
-
 class Note(db.Model):
     __tablename__ = 'notes'
     def __init__(self, name, topic, content):

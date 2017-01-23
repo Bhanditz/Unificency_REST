@@ -2,13 +2,20 @@ from flask_restful import fields
 from passlib.apps import custom_app_context as pwd_context
 from app.university import model as university_model
 from app import db
-from sqlalchemy import func
 
-# many to many
+"""================= many to many realtionships==================="""
 GroupMembership = db.Table('groupmembership',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('group_id', db.Integer, db.ForeignKey('groups.id'))
 )
+
+
+favorite_notes = db.Table('favorite_notes',
+    db.Column('note_id', db.Integer, db.ForeignKey('notes.id')),
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'))
+)
+"""================= many to many realtionships==================="""
+
 
 class User(db.Model):
     """
@@ -32,6 +39,7 @@ class User(db.Model):
     # groups can be accessed via many-to-many relationship maybe revert to joined
     groups = db.relationship('Group', secondary=GroupMembership, backref=db.backref('members', lazy='joined'),
                              passive_deletes=False, order_by='desc(Group.id)')
+    favorite_notes = db.relationship('Note', secondary=favorite_notes, backref=db.backref('favorited_by', lazy='dynamic'), lazy='dynamic', passive_deletes=False)
     fields = {
         'basic': {
             'email': fields.String,
@@ -65,4 +73,17 @@ class User(db.Model):
 
     def is_member_of(self, group):
         return True if group in self.groups else False
+
+    def add_favorite(self, note):
+        if not self.is_favorite(note):
+            self.favorite_notes.append(note)
+            return self
+
+    def remove_favorite(self, note):
+        if self.is_favorite(note):
+            self.favorite_notes.remove(note)
+            return self
+
+    def is_favorite(self, note):
+        return self.favorite_notes.filter(favorite_notes.c.note_id == note.id).count() > 0
 
