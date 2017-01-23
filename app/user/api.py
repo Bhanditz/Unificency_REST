@@ -1,5 +1,5 @@
-import os
-from flask import Blueprint, make_response, jsonify, request
+import os, sys
+from flask import Blueprint, make_response, jsonify, request, send_file, send_from_directory
 from flask_restful import Api, Resource, reqparse, marshal_with, marshal
 from app import db
 from app.university import model as university_model
@@ -9,6 +9,7 @@ from app.validation import email as validator
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 import config
+from app.resources import response
 from app.group import model as group_model
 
 user_blueprint = Blueprint('user', __name__)
@@ -104,14 +105,14 @@ class SingleUser(Resource):
         @apiSuccessExample UserInfo:
          HTTP/1.1 200 OK
             {
-            "username": "Romue404",
+            "username": "Max Mustermann",
              "university":
                 {"city": null, "country": "Germany", "id": 1, "name": "LMU"},
               "major": "Informatik",
               "email": "robert.mueller1990@googlemail.com",
-              "groups_count": number of groups the user is enrolled in,
-              "notes_count": number of notes the user has posted so far,
-              "favorite_notes_count": number of notes the user favors
+              "groups_count": 5,
+              "notes_count": 2,
+              "favorite_notes_count": 3
             }
         """
         user = kwargs.get('user')
@@ -183,20 +184,62 @@ class ProfilePic(Resource):
     def allowed_file(self, filename):
         return '.' in filename and \
                filename.rsplit('.', 1)[1].lower() in config.Config().ALLOWED_EXTENSIONS
-    #@auth.token_required
+    @auth.token_required
     def post(self, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {post} /users/images/ Add a profile pic
+        @apiName AddProfilePic
+        @apiGroup Users
+        @apiUse TokenRequired
+        @apiDescription Upload a profile pic.
+        @apiUse BadRequest
+        @apiUse NoSuchUserError
+        """
         if 'file' not in request.files:
             return request.simple('You have to provide a file', 404)
-        path = os.path.dirname(os.path.abspath(__file__))
+        user_id = kwargs.get('user')['user_id']
+        user = model.User.query.get(user_id)
+        if not user:
+            return response.simple_response('no such user', status=404)
         file = request.files['file']
         if file.filename == '':
             return request.simple('Empty file', 404)
-        if file and self.allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            path = os.path.join(config.Config().UPLOAD_FOLDER_USER_PROFILE_IMAGES, filename)
-            file.save(path)
+        if not self.allowed_file(file.filename):
+            return response.simple_response('this kind of data is not allowed', 400)
+        if not file:
+            response.simple_response('no file', 404)
+        filename = secure_filename(file.filename)
+        filename, file_extension = os.path.splitext(filename)
+        new_filename = user.username+file_extension
+        path = os.path.join(config.Config().UPLOAD_FOLDER_USER_PROFILE_IMAGES, new_filename)
+        file.save(path)
+        user.profile_img_path = path
+        db.session.commit()
+        return response.simple_response('saved image')
 
-        return jsonify({'destination': path})
+    @auth.token_required
+    def get(self, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {get} /users/images/ Get a profile pic
+        @apiName GetProfilePic
+        @apiGroup Users
+        @apiUse TokenRequired
+        @apiDescription Upload a profile pic.
+        @apiUse BadRequest
+        @apiUse NoSuchUserError
+        """
+        user_id = kwargs.get('user')['user_id']
+        user = model.User.query.get(user_id)
+        if not user:
+            return response.simple_response('no such user', status=404)
+        profile_img_path = user.profile_img_path
+        print profile_img_path
+        if not profile_img_path:
+            return response.simple_response('no profile image uploaded yet', status=404)
+        APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
+        return send_file(os.path.join(APP_ROOT, profile_img_path))
 
 api.add_resource(SingleUser, '/users/')
 api.add_resource(ProfilePic, '/users/images/')

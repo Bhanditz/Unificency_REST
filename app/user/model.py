@@ -33,6 +33,7 @@ class User(db.Model):
     username = db.Column(db.String(20), index=True, unique=True)
     major = db.Column(db.String(40))
     password_hash = db.Column(db.String(128))
+    profile_img_path = db.Column(db.String(256))
     # if the user is deleted, so are the notes
     notes = db.relationship('Note', backref='creator', lazy='dynamic')
     university = db.relationship('University', foreign_keys='User.university_id')
@@ -40,6 +41,7 @@ class User(db.Model):
     groups = db.relationship('Group', secondary=GroupMembership, backref=db.backref('members', lazy='joined'),
                              passive_deletes=False, order_by='desc(Group.id)')
     favorite_notes = db.relationship('Note', secondary=favorite_notes, backref=db.backref('favorited_by', lazy='dynamic'), lazy='dynamic', passive_deletes=False)
+
     fields = {
         'basic': {
             'email': fields.String,

@@ -257,7 +257,7 @@ class FavoriteNotes(Resource):
     def post(self, id_, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {post} /users/notes/{id}/favor/ Favor a note.
+        @api {post} /notes/{id}/favor/ Favor a note.
         @apiName FavorNote
         @apiGroup Notes
         @apiUse TokenRequired
