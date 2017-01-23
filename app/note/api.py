@@ -26,7 +26,7 @@ class NoteCRUD(Resource):
     def post(self, group_id, *args, **kwargs):#note.creator und note.group
         """
         @apiVersion 0.1.0
-        @api {post} /groups/<int:group_id>/notes/ Create a note.
+        @api {post} /groups/{group_id}/notes/ Create a note.
         @apiName CreateNote
         @apiGroup Notes
         @apiDescription Create a new Note.
@@ -62,7 +62,7 @@ class NoteCRUD(Resource):
     def get(self, group_id, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /groups/<int:group_id>/notes/ Get a groups notes.
+        @api {get} /groups/{group_id}/notes/ Get a groups notes.
         @apiName GetGroupNotes
         @apiGroup Notes
         @apiUse TokenRequired
