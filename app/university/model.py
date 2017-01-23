@@ -22,3 +22,7 @@ class University(db.Model):
             'country': fields.String
         }
     }
+
+    def add_group(self, group):
+        self.groups.append(group)
+        return self

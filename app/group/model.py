@@ -49,6 +49,10 @@ class Group(db.Model):
     def verify_password(self, entered_password):
         return pwd_context.verify(entered_password, self.password_hash)
 
+    def add_user(self, user):
+        self.members.append(user)
+        return self
+
 
 
 

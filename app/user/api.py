@@ -8,8 +8,8 @@ import model
 from app.validation import email as validator
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
-import app.validation.auth
 import config
+from app.group import model as group_model
 
 user_blueprint = Blueprint('user', __name__)
 api = Api(user_blueprint)
@@ -60,13 +60,26 @@ class SingleUser(Resource):
             new_user.owner = parent_uni
             try:
                 db.session.add(new_user)
+                public_group = group_model.Group.query.filter_by(name='public',university_id=parent_uni.id).first()
+                if not public_group:
+                    public_group = group_model.Group(name='public',
+                                                     description='Diese Notizen sind fuer alle Benutzer sichtbar',
+                                                     topic_area='oeffentlich')
+                    parent_uni.add_group(public_group)
+                    db.session.add(public_group)
+                public_group.add_user(new_user)
                 db.session.commit()
                 return make_response(jsonify({'message': 'created user'}))
             except IntegrityError as error:
                 db.session.rollback()
                 s = ""
                 if "Duplicate entry" in error.message:
-                    return make_response(jsonify({'message': error.message}), 404)
+                    message = ""
+                    if 'email' in error.message:
+                        message += 'This email is already in use.'
+                    if 'name' in error.message:
+                        message += 'This username is already in use.'
+                    return make_response(jsonify({'message': message}), 404)
                 else:
                     s = "an error occured, the user could not be saved"
                     return make_response(jsonify({'message': s}), 500)
@@ -85,8 +98,9 @@ class SingleUser(Resource):
         @apiSuccess {String} major  The subject the user is majoring in
         @apiSuccess {String} email The users email.
         @apiSuccess {String} university The universities the user studies at. See example for the json
-        @apiSuccess groups_count number of groups the user is enrolled in
-        @apiSuccess notes_count number of notes the user has posted so far
+        @apiSuccess {Integer} groups_count Number of groups the user is enrolled in,
+        @apiSuccess {Integer} notes_count Number of notes the user has posted so far
+        @apiSuccess {Integer} favorite_notes_count Number of notes the user favors
         @apiSuccessExample UserInfo:
          HTTP/1.1 200 OK
             {
@@ -96,7 +110,8 @@ class SingleUser(Resource):
               "major": "Informatik",
               "email": "robert.mueller1990@googlemail.com",
               "groups_count": number of groups the user is enrolled in,
-              "notes_count": number of notes the user has posted so far
+              "notes_count": number of notes the user has posted so far,
+              "favorite_notes_count": number of notes the user favors
             }
         """
         user = kwargs.get('user')

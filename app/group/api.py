@@ -267,7 +267,7 @@ class GroupWithId(Resource): # works
     def get(self, id, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /groups/{id} Get group at id.
+        @api {get} /groups/{id}/ Get group at id.
         @apiName GetGroupAtId
         @apiGroup Groups
         @apiUse TokenRequired

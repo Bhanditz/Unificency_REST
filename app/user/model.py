@@ -61,7 +61,8 @@ class User(db.Model):
             'major': fields.String,
             'university': fields.Nested(university_model.University.fields['basic']),
             'groups_count': fields.Integer(attribute=lambda u: len(u.groups)),
-            'notes_count': fields.Integer(attribute=lambda u: u.notes.count())
+            'notes_count': fields.Integer(attribute=lambda u: u.notes.count()),
+            'favorite_notes_count': fields.Integer(attribute=lambda u: u.favorite_notes.count())
         }
     }
 
@@ -86,4 +87,5 @@ class User(db.Model):
 
     def is_favorite(self, note):
         return self.favorite_notes.filter(favorite_notes.c.note_id == note.id).count() > 0
+
 
