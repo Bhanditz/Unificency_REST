@@ -197,7 +197,7 @@ class ProfilePic(Resource):
         @apiUse NoSuchUserError
         """
         if 'file' not in request.files:
-            return request.simple('You have to provide a file', 404)
+            return response.simple('You have to provide a file', 404)
         user_id = kwargs.get('user')['user_id']
         user = model.User.query.get(user_id)
         if not user:

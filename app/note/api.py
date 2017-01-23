@@ -1,13 +1,15 @@
-from flask import Blueprint, make_response, jsonify, request
+import os, sys
+from flask import Blueprint, send_file, request
 from flask_restful import Api, Resource, reqparse, marshal
 from app import db
 import model
-from sqlalchemy import select
+import config
 from app.user import model as user_model
 from app.group import model as group_model
-from app.resources import response
+from app.resources import response, upload
 from app.validation import auth
 from app.note import model as note_model
+
 
 note_blueprint = Blueprint('note', __name__)
 api = Api(note_blueprint)
@@ -17,7 +19,7 @@ class NoteCRUD(Resource):
 
     def post_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('content', required=True, help='you have to provide some content for this note')
+        parser.add_argument('content', default=None, help='you have to provide some content for this note')
         parser.add_argument('name', required=True, help='you have to provide a name for this note')
         parser.add_argument('topic', required=True, help='you have to provide a topic for this note')
         return parser
@@ -35,7 +37,8 @@ class NoteCRUD(Resource):
         @apiUse SuccessfullyCreated
         @apiParam {String} name The notes name.
         @apiParam {String} topic The notes topic.
-        @apiParam {String} content The notes content.
+        @apiParam {String} [content] The notes content.
+        @apiParam {image} [file] An optional image.
         @apiUse NoSuchUserError
         @apiUse CouldNotBeSavedError
         """
@@ -52,11 +55,17 @@ class NoteCRUD(Resource):
         new_note = model.Note(
             args['name'], args['topic'], args['content']
         )
+        if 'file' in request.files:
+            path = upload.get_uploaded_image_and_save(
+                save_to=config.Config().UPLOAD_FOLDER_NOTES_IMAGES
+            )
+            print path
+            new_note.image_path = path
         new_note.creator = parent_user
         new_note.group = post_in_group
         db.session.add(new_note)
         db.session.commit()
-        return response.simple_response('note created', status=201)
+        return response.simple_response('note created' + str(new_note.id), status=201)
 
     @auth.token_required
     def get(self, group_id, *args, **kwargs):
@@ -80,6 +89,7 @@ class NoteCRUD(Resource):
             'name': the groups name,
             'topic': the groups topic,
             'content': the groups content
+            'has_image': true/false
             }, ...]
             }
 
@@ -125,6 +135,8 @@ class NoteById(Resource):
         if not user or not note_to_delete:
             return response.simple_response('no such note or user', status=404)
         if note_to_delete in user.notes:
+            if note_to_delete.image_path:
+                os.remove(os.path.join(os.path.dirname(sys.modules['__main__'].__file__), note_to_delete.image_path))
             db.session.delete(note_to_delete)
             db.session.commit()
             return response.simple_response('note deleted')
@@ -167,7 +179,7 @@ class NoteById(Resource):
     def get(self, id_, *args, **kwargs):
         """
         @apiVersion 0.1.0
-        @api {get} /notes/{id}/ Get a note by id
+        @api {get} /notes/{id}?image=[true|false] Get a note by id
         @apiName NoteById
         @apiGroup Notes
         @apiUse TokenRequired
@@ -192,7 +204,8 @@ class NoteById(Resource):
               "username": "Roberto"
             },
             "topic": "Algorithmen",
-            "id": 1
+            "id": 1,
+            "has_image": true/false
           }
         ]
         """
@@ -201,8 +214,19 @@ class NoteById(Resource):
         note_to_return = model.Note.query.get(id_)
         if not user or not note_to_return:
             return response.simple_response('no such note or user', status=404)
+        image = request.args.get('image')
         users_note_check = note_to_return.group_id in [group.id for group in user.groups]
-        return marshal(note_to_return, note_model.Note.fields) if users_note_check else response.simple_response('this is not your note', status=401)
+        if not users_note_check:
+            return response.simple_response('this is not your note', status=401)
+        if image:
+            if not note_to_return.image_path:
+                return response.simple_response('this note has no image', 404)
+            if image.lower() == 'true':
+                APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
+                return send_file(os.path.join(APP_ROOT, note_to_return.image_path))
+            if image.lower() not in ['true', 'false']:
+                return response.simple_response('expected ?image=[true|false], got {0}'.format(image))
+        return marshal(note_to_return, note_model.Note.fields)
 
 
 class UsersNotes(Resource):

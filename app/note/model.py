@@ -16,7 +16,9 @@ class Note(db.Model):
     group_id = db.Column('group_id', db.Integer, db.ForeignKey('groups.id'), nullable=False)
     topic = db.Column('topic', db.String(20), nullable=False)
     name = db.Column('name', db.String(20), nullable=False)
-    content = db.Column('content', db.String(999), nullable=False)
+    content = db.Column('content', db.String(4200))
+    image_path = db.Column('image_path', db.String(256))
+
     # GROUP - public = db.Column('public')
     # owner (user)
 
@@ -26,5 +28,6 @@ class Note(db.Model):
         'topic': fields.String,
         'creator': fields.Nested(user_model.User.fields['only_username']),
         'group': fields.Nested(group_model.Group.fields['only_id_and_name']),
-        'content': fields.String
+        'content': fields.String,
+        'has_image': fields.Boolean(attribute=lambda n: True if n.image_path else False)
     }

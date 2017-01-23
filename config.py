@@ -3,6 +3,7 @@ class Config(object):
     Common configurations
     """
     UPLOAD_FOLDER_USER_PROFILE_IMAGES = 'instance/static/users/profile_images/'
+    UPLOAD_FOLDER_NOTES_IMAGES = 'instance/static/notes/'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
     ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
     SQLALCHEMY_POOL_SIZE = 100
