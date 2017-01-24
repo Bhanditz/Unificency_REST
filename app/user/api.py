@@ -240,8 +240,8 @@ class ProfilePic(Resource):
         print profile_img_path
         if not profile_img_path:
             return response.simple_response('no profile image uploaded yet', status=404)
-        APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
-        return send_file(os.path.join(APP_ROOT, profile_img_path))
+
+        return send_file(os.path.join(config.Config().PROJECT_ROOT, profile_img_path))
 
     @auth.token_required
     def delete(self, *args, **kwargs):
