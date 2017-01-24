@@ -221,7 +221,7 @@ class NoteById(Resource):
             if not note_to_return.image_path:
                 return response.simple_response('this note has no image', 404)
             if image.lower() == 'true':
-                APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
+                APP_ROOT = config.Config().PROJECT_ROOT
                 return send_file(os.path.join(APP_ROOT, note_to_return.image_path))
             if image.lower() not in ['true', 'false']:
                 return response.simple_response('expected ?image=[true|false], got {0}'.format(image))
