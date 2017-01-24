@@ -59,13 +59,12 @@ class NoteCRUD(Resource):
             path_ = upload.get_uploaded_image_and_save(
                 save_to=config.Config().UPLOAD_FOLDER_NOTES_IMAGES
             )
-            path = os.path.join(os.path.dirname(sys.modules['__main__'].__file__), path_)
-            new_note.image_path = path
+            new_note.image_path = path_
         new_note.creator = parent_user
         new_note.group = post_in_group
         db.session.add(new_note)
         db.session.commit()
-        return response.simple_response('note created' + str(new_note.id), status=201)
+        return response.simple_response('note created ' + str(new_note.id), status=201)
 
     @auth.token_required
     def get(self, group_id, *args, **kwargs):

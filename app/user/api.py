@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from flask import Blueprint, make_response, jsonify, request, send_file, send_from_directory
 from flask_restful import Api, Resource, reqparse, marshal_with, marshal
 from app import db
@@ -213,7 +214,7 @@ class ProfilePic(Resource):
         filename, file_extension = os.path.splitext(filename)
         new_filename = user.username+file_extension
         path_ = os.path.join(config.Config().UPLOAD_FOLDER_USER_PROFILE_IMAGES, new_filename)
-        path =  os.path.join(os.path.dirname(sys.modules['__main__'].__file__), path_)
+        path = os.path.join(config.Config().PROJECT_ROOT, path_)
         file.save(path)
         user.profile_img_path = path
         db.session.commit()

@@ -1,3 +1,6 @@
+import os
+
+
 class Config(object):
     """
     Common configurations
@@ -8,6 +11,7 @@ class Config(object):
     ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
     SQLALCHEMY_POOL_SIZE = 100
     SQLALCHEMY_POOL_RECYCLE = 280
+    PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
     # Put any configurations here that are common across all environments

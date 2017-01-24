@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from flask import request
 import random
 import string
+import config
 
 
 def allowed_file(filename):
@@ -35,5 +36,5 @@ def get_uploaded_image_and_save(save_to,**kwargs):
     while os.path.isfile(path):
         filename, file_extension = os.path.splitext(path)
         path = os.path.join(save_to,  id_generator()+file_extension)
-    file.save(path)
+    file.save(os.path.join(config.Config().PROJECT_ROOT, path))
     return path
