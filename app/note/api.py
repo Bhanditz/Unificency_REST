@@ -56,10 +56,10 @@ class NoteCRUD(Resource):
             args['name'], args['topic'], args['content']
         )
         if 'file' in request.files:
-            path = upload.get_uploaded_image_and_save(
+            path_ = upload.get_uploaded_image_and_save(
                 save_to=config.Config().UPLOAD_FOLDER_NOTES_IMAGES
             )
-            print path
+            path = os.path.join(os.path.dirname(sys.modules['__main__'].__file__), path_)
             new_note.image_path = path
         new_note.creator = parent_user
         new_note.group = post_in_group
