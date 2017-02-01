@@ -321,6 +321,36 @@ class FavoriteNotes(Resource):
         db.session.commit()
         return response.simple_response('added note {0} to your favorites'. format(note.name))
 
+    @auth.token_required
+    def delete(self, id_, *args, **kwargs):
+        """
+        @apiVersion 0.1.0
+        @api {delete} /notes/{id}/favor/ Unfavor a note.
+        @apiName UnfavorNote
+        @apiGroup Notes
+        @apiUse TokenRequired
+        @apiDescription Unfavor a note.
+        @apiUse BadRequest
+        @apiSuccess 200 Success-Response:
+        @apiUse NoSuchUserError
+        @apiSuccessExample Success-Response
+          HTTP/1.1 200 OK
+          {
+            "message": "removed note from your favorites"
+          }
+        """
+        user_id = kwargs.get('user')['user_id']
+        user = user_model.User.query.get(user_id)
+        note = note_model.Note.query.get(id_)
+        if not user or not note:
+            return response.simple_response('no such user or note', status=404)
+        if not note in user.favorite_notes:
+            return response.simple_response('you did not favor this note', status=400)
+        user.favorite_notes.remove(note)
+        db.session.commit()
+        return response.simple_response('removed note {0} from your favorites'.format(note.name), status=200)
+
+
 
 
 
