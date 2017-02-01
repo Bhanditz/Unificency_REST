@@ -100,7 +100,15 @@ class NoteCRUD(Resource):
             if user.is_member_of(group):
                 # explicitly load because of lazy relationship
                 notes = group.notes.all()
-                return marshal(notes, model.Note.fields)
+                marshalled = marshal(notes, model.Note.fields)
+                UM = user_model.User
+                for note_marshalled in marshalled:
+                    count = UM.query.filter(
+                        UM.favorite_notes.any(
+                            model.Note.id == note_marshalled['id']
+                        )).count()
+                    note_marshalled.update({'favorite_count': count})
+                return jsonify(marshalled)
             else:
                 return response.simple_response('no you are not a member of this group', status=404)
         return response.simple_response('no notes found', status=404)

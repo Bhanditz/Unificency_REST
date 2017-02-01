@@ -251,9 +251,9 @@ class ProfilePic(Resource):
         @apiName DeleteProfilcePicture
         @apiGroup Users
         @apiUse TokenRequired
-        @apiDescription Upload a profile pic.
+        @apiDescription Upload a profile pic.a
         @apiUse BadRequest
-        apiUse SuccessfullyDeleted
+        @apiUse SuccessfullyDeleted
         @apiUse NoSuchUserError
         """
         user_id = kwargs.get('user')['user_id']
