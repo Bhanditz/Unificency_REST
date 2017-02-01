@@ -285,6 +285,17 @@ class UsersNotes(Resource):
           }, .....
         ]
         """
+        def with_count(notes):
+            UM = user_model.User
+            all_notes = notes
+            marshalled = marshal(all_notes, note_model.Note.fields)
+            for note in marshalled:
+                count = UM.query.filter(
+                    UM.favorite_notes.any(
+                        model.Note.id == note['id']
+                    )).count()
+                note.update({'favorite_count': count})
+            return jsonify(marshalled)
 
         user_id = kwargs.get('user')['user_id']
         user = user_model.User.query.get(user_id)
@@ -293,10 +304,11 @@ class UsersNotes(Resource):
         favorites = request.args.get('favorites')
         if favorites:
             if favorites.lower() == 'true':
-                return marshal(user.favorite_notes.all(), note_model.Note.fields)
+                return with_count(user.favorite_notes.all())
             if favorites.lower() not in ['true', 'false']:
                 return response.simple_response('expected ?favorites=[true|false], got {0}'.format(favorites))
-        return marshal(user.notes.all(), note_model.Note.fields)
+        return with_count(user.notes.all())
+
 
 
 class FavoriteNotes(Resource):
