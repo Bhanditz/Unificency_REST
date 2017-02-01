@@ -1,5 +1,5 @@
 import os, sys
-from flask import Blueprint, send_file, request
+from flask import Blueprint, send_file, request, jsonify
 from flask_restful import Api, Resource, reqparse, marshal
 from app import db
 import model
@@ -204,7 +204,10 @@ class NoteById(Resource):
             },
             "topic": "Algorithmen",
             "id": 1,
-            "has_image": true/false
+            "has_image": true/false,
+            "is_creator": true,
+            "if_favorite": false,
+            "favorite_count": 42
           }
         ]
         """
@@ -225,7 +228,20 @@ class NoteById(Resource):
                 return send_file(os.path.join(APP_ROOT, note_to_return.image_path))
             if image.lower() not in ['true', 'false']:
                 return response.simple_response('expected ?image=[true|false], got {0}'.format(image))
-        return marshal(note_to_return, note_model.Note.fields)
+        additional_info = {
+            'is_favorite': True if note_to_return in user.favorite_notes else False,
+            'is_creator': True if note_to_return in user.notes else False
+        }
+        UM = user_model.User
+        count = UM.query.filter(
+            UM.favorite_notes.any(
+                model.Note.id == note_to_return.id
+        )).count()
+        marshalled = marshal(note_to_return, note_model.Note.fields)
+        marshalled_ = marshalled.copy()
+        marshalled_.update(additional_info)
+        marshalled_.update({'favorite_count': count})
+        return jsonify(marshalled_)
 
 
 class UsersNotes(Resource):
