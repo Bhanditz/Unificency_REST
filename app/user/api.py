@@ -143,8 +143,8 @@ class SingleUser(Resource):
         user_to_update = model.User.query.get(user['user_id'])
         if user_to_update:
             for key, value in args.iteritems():
-                value = unicode(value)
                 if value:
+                    value = unicode(value)
                     setattr(user_to_update, key, value)
                     updated.append(key)
         if len(updated) > 0:
