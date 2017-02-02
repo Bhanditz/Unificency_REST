@@ -176,7 +176,8 @@ class NoteById(Resource):
             message = ""
             for key, value in args.items():
                 if key and value:
-                    setattr(note_to_modify, key, unicode(value))
+                    value = unicode(value)
+                    setattr(note_to_modify, key, value)
                     message += '{key} set to {value} | '.format(key=key, value=value)
             db.session.commit()
             return response.simple_response(message)
