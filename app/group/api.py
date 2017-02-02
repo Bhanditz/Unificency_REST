@@ -109,16 +109,17 @@ class UpdateGroup(Resource):
         user = kwargs.get('user')
         parser = self.put_parser()
         args = parser.parse_args()
-        message = ""
+        message = u""
         # password protection check to come
         user = user_model.User.query.get(user['user_id'])
         group_to_join = [group for group in user.groups if group.id == group_id]
         if not (group_to_join or user):
             return make_response(jsonify({'message': 'you need to be a member of this group in order to modify its data'}), 404)
         for key, value in {k: v for k, v in args.iteritems() if 'id' not in k}.iteritems():
+            value = unicode(value)
             if key and value:
                 setattr(group_to_join[0], key, value)
-                message += '{key} set to {value}. '.format(key=key, value=value)
+                message += u'{key} set to {value}. '.format(key=key, value=value)
             db.session.commit()
         return make_response(jsonify({'message': message}))
 

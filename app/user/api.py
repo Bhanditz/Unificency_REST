@@ -20,19 +20,19 @@ api = Api(user_blueprint)
 class SingleUser(Resource):
     def post_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True, help='you have to provide a username for this user')
+        parser.add_argument('username', required=True, help='you have to provide a username for this user')
         parser.add_argument('email', type=validator.email, required=True, help='you have to provide a valid email for this user')
         parser.add_argument('university_id', type=int, required=True, help='you have to provide a university id for this user')
-        parser.add_argument('password', type=str, default=None, required=True, help="you have to provide a password for this user")
-        parser.add_argument('major', type=str, default=None)
+        parser.add_argument('password', default=None, required=True, help="you have to provide a password for this user")
+        parser.add_argument('major',  default=None)
         return parser
 
     def put_parser(self):
         parser = reqparse.RequestParser()
         parser.add_argument('email', type=validator.email)
         parser.add_argument('university_id', type=int)
-        parser.add_argument('password', type=str)
-        parser.add_argument('major', type=str)
+        parser.add_argument('password')
+        parser.add_argument('major')
         return parser
 
     def post(self): # works
@@ -144,6 +144,7 @@ class SingleUser(Resource):
         user_to_update = model.User.query.get(user['user_id'])
         if user_to_update:
             for key, value in args.iteritems():
+                value = unicode(value)
                 # last part is to fix requests that have a key but null as a value for that key
                 #setattr(user_to_update(user_to_update, k, v if v else getattr(user_to_update,k)))
                 if value: # check if uni exists
