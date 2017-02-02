@@ -143,7 +143,9 @@ class SingleUser(Resource):
         user_to_update = model.User.query.get(user['user_id'])
         if user_to_update:
             for key, value in args.iteritems():
-                if value:
+                if key == 'password' and value:
+                    user_to_update.hash_password(args['password'])
+                elif value:
                     value = unicode(value)
                     setattr(user_to_update, key, value)
                     updated.append(key)
