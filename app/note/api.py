@@ -173,12 +173,12 @@ class NoteById(Resource):
         if not user or not note_to_modify:
             return response.simple_response('no such note or user', status=404)
         if note_to_modify in user.notes:
-            message = ""
+            message = u""
             for key, value in args.items():
                 if key and value:
                     value = unicode(value)
                     setattr(note_to_modify, key, value)
-                    message += '{key} set to {value} | '.format(key=key, value=value)
+                    message += u'{key} set to {value} | '.format(key=key, value=value)
             db.session.commit()
             return response.simple_response(message)
         return response.simple_response('you must be the creator of this note in order to modify it', status=401)
