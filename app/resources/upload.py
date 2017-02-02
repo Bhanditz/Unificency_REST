@@ -33,7 +33,7 @@ def get_uploaded_image_and_save(save_to,**kwargs):
         _, file_extension = os.path.splitext(filename)
         filename = new_filename + file_extension
     path = os.path.join(save_to, filename)
-    while os.path.isfile(path):
+    while os.path.isfile(os.path.join(config.Config().PROJECT_ROOT, path)):
         filename, file_extension = os.path.splitext(path)
         path = os.path.join(save_to,  id_generator()+file_extension)
     file.save(os.path.join(config.Config().PROJECT_ROOT, path))

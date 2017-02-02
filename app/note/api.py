@@ -25,7 +25,7 @@ class NoteCRUD(Resource):
         return parser
 
     @auth.token_required
-    def post(self, group_id, *args, **kwargs):#note.creator und note.group
+    def post(self, group_id, *args, **kwargs):
         """
         @apiVersion 0.1.0
         @api {post} /groups/{group_id}/notes/ Create a note.
@@ -57,8 +57,7 @@ class NoteCRUD(Resource):
         )
         if 'file' in request.files:
             path_ = upload.get_uploaded_image_and_save(
-                save_to=config.Config().UPLOAD_FOLDER_NOTES_IMAGES
-            )
+                save_to=config.Config().UPLOAD_FOLDER_NOTES_IMAGES)
             new_note.image_path = path_
         new_note.creator = parent_user
         new_note.group = post_in_group

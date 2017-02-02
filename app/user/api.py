@@ -264,7 +264,7 @@ class ProfilePic(Resource):
         print profile_img_path
         if not profile_img_path:
             return response.simple_response('no profile image uploaded yet', status=404)
-        APP_ROOT = os.path.dirname(sys.modules['__main__'].__file__)
+        APP_ROOT = config.Config().PROJECT_ROOT
         os.remove(os.path.join(APP_ROOT, profile_img_path))
         user.profile_img_path = None
         db.session.commit()
