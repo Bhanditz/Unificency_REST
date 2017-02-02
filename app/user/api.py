@@ -145,6 +145,7 @@ class SingleUser(Resource):
             for key, value in args.iteritems():
                 if key == 'password' and value:
                     user_to_update.hash_password(args['password'])
+                    updated.append(key)
                 elif value:
                     value = unicode(value)
                     setattr(user_to_update, key, value)
