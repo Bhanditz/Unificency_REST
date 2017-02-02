@@ -29,7 +29,6 @@ class SingleUser(Resource):
 
     def put_parser(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('email', type=validator.email)
         parser.add_argument('university_id', type=int)
         parser.add_argument('password')
         parser.add_argument('major')
@@ -145,10 +144,7 @@ class SingleUser(Resource):
         if user_to_update:
             for key, value in args.iteritems():
                 value = unicode(value)
-                # last part is to fix requests that have a key but null as a value for that key
-                #setattr(user_to_update(user_to_update, k, v if v else getattr(user_to_update,k)))
-                if value: # check if uni exists
-                    # check for uniqueness violations
+                if value:
                     setattr(user_to_update, key, value)
                     updated.append(key)
         if len(updated) > 0:
