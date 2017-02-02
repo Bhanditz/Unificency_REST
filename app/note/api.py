@@ -143,7 +143,7 @@ class NoteById(Resource):
         if note_to_delete in user.notes:
             if note_to_delete.image_path:
                 APP_ROOT = config.Config().PROJECT_ROOT
-                os.remove(os.path.join(APP_ROOT, note_to_delete.image_path))
+                upload.delete_if_exists(os.path.join(APP_ROOT, note_to_delete.image_path))
             db.session.delete(note_to_delete)
             db.session.commit()
             return response.simple_response('note deleted')

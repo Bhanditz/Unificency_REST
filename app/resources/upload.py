@@ -1,3 +1,4 @@
+import os
 import response
 import config
 import os
@@ -38,3 +39,11 @@ def get_uploaded_image_and_save(save_to,**kwargs):
         path = os.path.join(save_to,  id_generator()+file_extension)
     file.save(os.path.join(config.Config().PROJECT_ROOT, path))
     return path
+
+
+def delete_if_exists(path):
+    if(os.path.isfile(path)):
+        os.remove(path)
+        return True
+    else:
+        return False
