@@ -54,7 +54,7 @@ class CreateGroup(Resource):
         if user_info and user_uni:
             new_group = model.Group(
                 name=args['name'],
-                topic_area= args['topic_area'],
+                topic_area=args['topic_area'],
                 description=args['description']
             )
             try:
@@ -170,14 +170,14 @@ class JoinGroup(Resource):
             if group_to_join.verify_password(args['password']):
                 group_to_join.members.append(requesting_user)
                 db.session.commit()
-                return make_response(jsonify({'message': 'Added {user} to {group}'.format(user=requesting_user.username,group=group_to_join.name)}))
+                return make_response(jsonify({'message': u'Added {user} to {group}'.format(user=requesting_user.username,group=group_to_join.name)}))
             else:
-                return make_response((jsonify({'message': 'The password you provided was wrong'})),401)
+                return make_response((jsonify({'message': 'The password you provided was wrong'})), 401)
         else:
             group_to_join.members.append(requesting_user)
             db.session.commit()
             return make_response(jsonify(
-                {'message': 'Added {user} to {group}'.format(user=requesting_user.username, group=group_to_join.name)}))
+                {'message': u'Added {user} to {group}'.format(user=requesting_user.username, group=group_to_join.name)}))
 
 
 class LeaveGroup(Resource):
@@ -204,15 +204,15 @@ class LeaveGroup(Resource):
         user = kwargs.get('user')
         requesting_user = user_model.User.query.get(user['user_id'])
         group_to_leave = model.Group.query.get(group_id)
-        if not group_to_leave :
-            return make_response(jsonify({'message':'This group does not exist'}), 404)
+        if not group_to_leave:
+            return make_response(jsonify({'message': 'This group does not exist'}), 404)
         if not requesting_user:
             return make_response(jsonify({'message': 'This user does not exist'}), 404)
         if not (group_to_leave in requesting_user.groups):
             return make_response(jsonify({'message': 'You are not a member of this group'}), 401)
         group_to_leave.members.remove(requesting_user)
         db.session.commit()
-        return make_response(jsonify({'message': '{user} left {group}'.format(user=requesting_user.username,
+        return make_response(jsonify({'message': u'{user} left {group}'.format(user=requesting_user.username,
                                                                               group=group_to_leave.name)}))
 
 
